@@ -14,8 +14,10 @@ object Profile {
     )(unlift(Profile.unapply))
   
   def findProfileByReceptorName(r_name: String): List[Profile] =
-    ProfileDAO.index(r_name)
+    ProfileDAO.indexByReceptorName(r_name)
 
+  def findProfileByPdbCode(pdbCode: String): List[Profile] =
+    ProfileDAO.indexByPdbCode(pdbCode)
 }
 
 case class Profile(r_name: String, pdbCode: String, l_id: String, l_score: Double)
