@@ -7,17 +7,15 @@ import play.api.libs.json._
 
 object Profile {
   implicit val ProfileWrites: Writes[Profile] = (
-    (JsPath \ "r_name").write[String] and
-      (JsPath \ "pdbCode").write[String] and
-      (JsPath \ "l_id").write[String] and
-      (JsPath \ "l_name").write[Double]
+    (JsPath \ "l_id").write[String] and
+      (JsPath \ "l_score").write[Double] and
+      (JsPath \ "l_prediction").write[String] and
+      (JsPath \ "r_name").write[String] and
+      (JsPath \ "r_pdbCode").write[String] 
     )(unlift(Profile.unapply))
-  
-  def findProfileByReceptorName(r_name: String): List[Profile] =
-    ProfileDAO.indexByReceptorName(r_name)
-
-  def findProfileByPdbCode(pdbCode: String): List[Profile] =
-    ProfileDAO.indexByPdbCode(pdbCode)
+ 
+  def findProfileByLigandId(lId : String) : List[Profile] = 
+    ProfileDAO.profileByLigandId(lId)
 }
 
-case class Profile(r_name: String, pdbCode: String, l_id: String, l_score: Double)
+case class Profile( l_id: String, l_score: Double, l_prediction : String, r_name: String, r_pdbCode: String)

@@ -6,15 +6,9 @@ import play.api.libs.json.Json
 import play.api.mvc._
 
 object Profiles extends Controller {
-
-  def profileByReceptorName(r_name: String) = Action {
-    val allProfiles = Profile.findProfileByReceptorName(r_name)
-
-    Ok(Json.obj("result" -> allProfiles))
-  }
   
-  def profileByPdbCode(pdbCode: String) = Action {
-    val allProfiles = Profile.findProfileByPdbCode(pdbCode)
+  def profileByLigandId(lId: String) = Action {
+    val allProfiles = Profile.findProfileByLigandId(lId)
 
     Ok(Json.obj("result" -> allProfiles))
   }

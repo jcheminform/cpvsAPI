@@ -3,8 +3,7 @@
 # ~~~~
 
 # API Endpoints
-GET     /profiles/receptorName/:r_name				         controllers.Profiles.profileByReceptorName(r_name: String)
-GET		/profiles/pdbCode/:pdbCode							 controllers.Profiles.profileByPdbCode(pdbCode: String)	
+GET		/profiles/lId/:lId									 controllers.Profiles.profileByLigandId(lId)		
 GET		/receptors											 controllers.ReceptorsAndPdbs.receptorAndPdbIndex()	
 
 # Home page

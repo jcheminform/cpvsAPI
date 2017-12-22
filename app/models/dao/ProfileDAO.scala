@@ -5,45 +5,27 @@ import models.Profile
 import play.api.db.DB
 import play.api.Play.current
 
+
 object ProfileDAO {
-  
-  def indexByReceptorName(r_name: String): List[Profile] = {
+  def profileByLigandId(lId: String) :List[Profile] = {
     DB.withConnection { implicit c =>
       val results = SQL(
         """
-          | SELECT RECEPTORS.r_name,RECEPTORS.pdbCode, LIGANDS.l_id, LIGANDS.l_score 
-          | FROM RECEPTORS
-          | INNER JOIN LIGANDS
-          | WHERE RECEPTORS.r_name={r_name};
+          | SELECT PREDICTED_LIGANDS.l_id, DOCKED_LIGANDS.l_score, PREDICTED_LIGANDS.l_prediction,
+          | PREDICTED_LIGANDS.r_name, PREDICTED_LIGANDS.r_pdbCode
+          | FROM PREDICTED_LIGANDS
+          | INNER JOIN DOCKED_LIGANDS
+          | ON PREDICTED_LIGANDS.l_id=DOCKED_LIGANDS.l_id
+          | WHERE PREDICTED_LIGANDS.l_id={l_id};
         """.stripMargin).on(
-          "r_name" -> r_name
+          "l_id" -> lId
         ).apply()
 
       results.map { row =>
-        Profile(row[String]("r_name"), row[String]("pdbCode"),row[String]("l_id"),row[Double]("l_score"))
+        Profile(row[String]("l_id"),row[Double]("l_score"),row[String]("l_prediction"),row[String]("r_name"),row[String]("r_pdbCode"))
       }.force.toList
     }
+    
   }
-  
-   def indexByPdbCode(pdbCode: String): List[Profile] = {
-    DB.withConnection { implicit c =>
-      val results = SQL(
-        """
-          | SELECT RECEPTORS.r_name,RECEPTORS.pdbCode, LIGANDS.l_id, LIGANDS.l_score 
-          | FROM RECEPTORS
-          | INNER JOIN LIGANDS
-          | WHERE RECEPTORS.r_name=(SELECT r_name from RECEPTORS where pdbCode={pdbCode});
-        """.stripMargin).on(
-          "pdbCode" -> pdbCode
-        ).apply()
-
-      results.map { row =>
-        Profile(row[String]("r_name"), row[String]("pdbCode"),row[String]("l_id"),row[Double]("l_score"))
-      }.force.toList
-    }
-  }
-   
    
 }
-
-
