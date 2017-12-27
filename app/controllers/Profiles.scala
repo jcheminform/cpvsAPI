@@ -13,8 +13,14 @@ object Profiles extends Controller {
     Ok(Json.obj("result" -> allProfiles))
   }
   
-  def welcome() = Action {
-    
+   def dockAndSave(lId: String, rName: String, rPdbCode : String) = Action {
+    val profile = Profile.computeAndSaveScore(lId, rName, rPdbCode)
+
+    Ok(Json.obj("result" -> profile))
+  }
+  
+  def welcome() = Action { 
     Ok("CPVS API is Up and Running" + "\n" + "Please Use /profiles end point for details and /receptors end point for list of receptors and their pdbCodes")
   }
+  
 }

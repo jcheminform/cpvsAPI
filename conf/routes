@@ -4,7 +4,9 @@
 
 # API Endpoints
 GET		/profiles/lId/:lId									 controllers.Profiles.profileByLigandId(lId)		
+GET     /profiles/lId/:lId/rName/:rName/rPdbCode/:rPdbCode	 controllers.Profiles.dockAndSave(lId, rName, rPdbCode) 	
 GET		/receptors											 controllers.ReceptorsAndPdbs.receptorAndPdbIndex()	
+
 
 # Home page
 GET     /                           controllers.Profiles.welcome()
