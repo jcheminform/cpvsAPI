@@ -40,7 +40,7 @@ object Profile {
   def findProfileByLigandId(lId: String): List[Profile] =
     ProfileDAO.profileByLigandId(lId)
 
-  def computeAndSaveScore(lId: String, rName: String, rPdbCode: String) : String =
+  def computeAndSaveScore(lId: String, rName: String, rPdbCode: String): String =
     {
       //Use local sh file if VINA_DOCKING is set
       val vinaDockingPath = if (System.getenv("VINA_DOCKING") != null) {
@@ -78,7 +78,7 @@ object Profile {
         System.exit(1)
         "Path Not set"
       }
-      
+
       //Create ReceptorPath
       val rNameWithExtension = rName + ".pdbqt"
       val receptorPath = receptorHome + rNameWithExtension
@@ -87,24 +87,23 @@ object Profile {
       //Get Link for the conformer file
       val linkHref = getDownloadLink(lId, rName, receptorHome)
 
-      //DOWNLOAD the conformer using link
+      //Download the conformer using link
       val ligand = downloadFile(linkHref, lId)
 
       //Compute Score using docking
-
       //Convert sdf ligand to pdbqt format using obabel
-      val pdbqtLigand: String = "MODEL\n" + pipeString(
+      val pdbqtLigand: String = "MODEL\n" + ConformerPipeline.pipeString(
         ligand,
         List(obabelPath, "-i", "sdf", "-o", "pdbqt")).trim() + "\nENDMDL"
 
       //Docking pdbqtLigand against receptor using VINA
-      val dockedpdbqt: String = pipeString(
+      val dockedpdbqt: String = ConformerPipeline.pipeString(
         pdbqtLigand,
         List(vinaDockingPath, "--receptor",
           receptorPath, "--config", vinaConfPath))
-          
-      //Convert pdbqt ligand to sdf format using obabel    
-      val pdbqtToSdfLigand = pipeString(
+
+      //Convert pdbqt ligand to sdf format using obabel
+      val pdbqtToSdfLigand = ConformerPipeline.pipeString(
         dockedpdbqt,
         List(obabelPath, "-i", "pdbqt", "-o", "sdf"))
 
@@ -131,6 +130,7 @@ object Profile {
     byteString
   }
 
+  //Using Jsoup to reach parse zinc webpage
   private def getDownloadLink(lId: String, rName: String, receptorHome: String): String = {
 
     //Get download link for conformer
@@ -144,32 +144,6 @@ object Profile {
     val linkHref = link.attr("href");
     Logger.info("JOB_INFO: Required link is " + linkHref)
     linkHref
-  }
-
-  private def pipeString(str: String, command: List[String]) = {
-
-    //Start executable
-    val pb = new ProcessBuilder(command.asJava)
-    val proc = pb.start
-    // Start a thread to print the process's stderr to ours
-    new Thread("stderr reader") {
-      override def run() {
-        for (line <- Source.fromInputStream(proc.getErrorStream).getLines) {
-          System.err.println(line)
-        }
-      }
-    }.start
-    // Start a thread to feed the process input
-    new Thread("stdin writer") {
-      override def run() {
-        val out = new PrintWriter(proc.getOutputStream)
-        out.println(str)
-        out.close()
-      }
-    }.start
-    //Return results as a single string
-    Source.fromInputStream(proc.getInputStream).mkString
-
   }
 
 }

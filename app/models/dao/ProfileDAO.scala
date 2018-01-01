@@ -7,8 +7,8 @@ import play.api.Play.current
 import java.io.PrintWriter
 
 object ProfileDAO {
-  
-   def saveLigandScoreById(lId: String, lScore : String, rName : String, rPdbCode : String) = {
+
+  def saveLigandScoreById(lId: String, lScore: String, rName: String, rPdbCode: String) = {
     DB.withConnection { implicit c =>
       SQL(
         """
@@ -19,11 +19,10 @@ object ProfileDAO {
           "l_id" -> lId,
           "l_score" -> lScore,
           "r_name" -> rName,
-          "r_pdbCode" -> rPdbCode
-        ).executeInsert()
+          "r_pdbCode" -> rPdbCode).executeInsert()
     }
   }
-  
+
   def profileByLigandId(lId: String): List[Profile] = {
     DB.withConnection { implicit c =>
       val results = SQL(
@@ -36,19 +35,14 @@ object ProfileDAO {
           | WHERE PREDICTED_LIGANDS.l_id={l_id};
         """.stripMargin).on(
           "l_id" -> lId).apply()
-          
-      val pw = new PrintWriter("data/test")
-      results.foreach(pw.println(_))
-      pw.close 
-      
-      //IF QUERY IS EMPTY MEANS PREDICTION NOT AVAIALBLE IMPLEMENT THIS MESSAGE
-      
+
       results.map { row =>
-        Profile(row[String]("l_id"), 
-            row[String]("l_score"), 
-            row[String]("l_prediction"), 
-            row[String]("r_name"), 
-            row[String]("r_pdbCode"))
+        Profile(
+          row[String]("l_id"),
+          row[String]("l_score"),
+          row[String]("l_prediction"),
+          row[String]("r_name"),
+          row[String]("r_pdbCode"))
       }.force.toList
     }
 
