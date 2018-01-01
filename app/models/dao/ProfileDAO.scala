@@ -36,9 +36,10 @@ object ProfileDAO {
           | WHERE PREDICTED_LIGANDS.l_id={l_id};
         """.stripMargin).on(
           "l_id" -> lId).apply()
+          
       val pw = new PrintWriter("data/test")
       results.foreach(pw.println(_))
-      pw.close
+      pw.close 
       
       //IF QUERY IS EMPTY MEANS PREDICTION NOT AVAIALBLE IMPLEMENT THIS MESSAGE
       

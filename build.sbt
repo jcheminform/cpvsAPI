@@ -1,12 +1,17 @@
+enablePlugins(SbtProguard)
+
 name := """cpvsAPI"""
 
 version := "1.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-doc in Compile <<= target.map(_ / "none")
+lazy val buildSettings = Seq(
+    organization        := "se.uu.farmbio.vs.cpvsAPI",
+    version             := "0.0.1"
+ )
 
-scalaVersion := "2.11.1"
+doc in Compile <<= target.map(_ / "none")
 
 libraryDependencies ++= Seq(
   jdbc,
@@ -14,8 +19,19 @@ libraryDependencies ++= Seq(
   cache,
   ws,
   "mysql" % "mysql-connector-java" % "5.1.18",
-  "org.mariadb.jdbc" % "mariadb-java-client" % "1.7.0"
+  "org.mariadb.jdbc" % "mariadb-java-client" % "1.7.0",
+  "org.jsoup" % "jsoup" % "1.11.2",
+  "se.uu.farmbio" % "vs" %"0.0.1-SNAPSHOT"
 )
+
+scalacOptions += "-feature"
+
+proguardOptions in Proguard ++= Seq("-dontnote", "-dontwarn", "-ignorewarnings")
+
+inConfig(Proguard)(javaOptions in proguard := Seq("-Xmx2g"))
+
+//Resolving/Adding maven local projects to sbt jar
+resolvers += Resolver.mavenLocal
 
 // Compile the project before generating Eclipse files, so that generated .scala or .class files for views and routes are present
 EclipseKeys.preTasks := Seq(compile in Compile, compile in Test)

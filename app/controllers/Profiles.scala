@@ -16,7 +16,7 @@ object Profiles extends Controller {
    def dockAndSave(lId: String, rName: String, rPdbCode : String) = Action {
     val profile = Profile.computeAndSaveScore(lId, rName, rPdbCode)
 
-    Ok(Json.obj("result" -> profile))
+    Ok(Json.obj("Score" -> profile))
   }
   
   def welcome() = Action { 
