@@ -14,8 +14,5 @@ object ReceptorsAndPdbs extends Controller {
     Ok(Json.obj("result" -> allReceptorsAndPdb))
   }
   
-  def welcome() = Action {
-    
-    Ok("CPVS API is Up and Running" + "\n" + "Please Use /profiles end point for details")
-  }
+ 
 }

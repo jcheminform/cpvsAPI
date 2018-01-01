@@ -3,10 +3,10 @@
 # ~~~~
 
 # API Endpoints
-GET     /profiles/receptorName/:r_name				         controllers.Profiles.profileByReceptorName(r_name: String)
-GET		/profiles/pdbCode/:pdbCode							 controllers.Profiles.profileByPdbCode(pdbCode: String)	
+GET		/profiles/lId/:lId									 controllers.Profiles.profileByLigandId(lId)		
 GET		/receptors											 controllers.ReceptorsAndPdbs.receptorAndPdbIndex()	
-
+POST    /profiles/lId/:lId/rName/:rName/rPdbCode/:rPdbCode	 controllers.Profiles.dockAndSave(lId, rName, rPdbCode)
+POST 	/prefile/prediction/lId/:lid/rName/:rName/rPdbCode/:rPdbCode 	controllers.Profiles.predict(lId, rName, rPdbCode)
 # Home page
 GET     /                           controllers.Profiles.welcome()
 
