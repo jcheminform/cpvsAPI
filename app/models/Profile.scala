@@ -1,34 +1,28 @@
 package models
 
-import models.dao.ProfileDAO
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-import play.api.Logger
-import scala.collection.JavaConverters.seqAsJavaListConverter
-import scala.io.Source
-import java.io.PrintWriter
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
-import org.jsoup.select.Elements
-import java.net.URL
-import java.io._
+import java.io.ByteArrayInputStream
+import java.io.InputStream
+import java.io.ObjectInputStream
 import java.net.HttpURLConnection
-import java.lang.Long
-import scala.collection.JavaConversions._
-import scala.io.Source
-
-import scala.language.postfixOps
-import se.uu.farmbio.vs.ConformerPipeline
-import se.uu.farmbio.vs.PosePipeline
-import se.uu.farmbio.vs.SGUtils_Serial
-import org.openscience.cdk.io.iterator.IteratingSDFReader
-import org.openscience.cdk.DefaultChemObjectBuilder
-import org.openscience.cdk.interfaces.IAtomContainer
+import java.net.URL
 import java.sql.DriverManager
-import se.uu.it.cp.InductiveClassifier
-import se.uu.farmbio.vs.MLlibSVM
+import java.lang.Long
+
+import scala.io.Source
+import scala.language.postfixOps
+
 import org.apache.spark.mllib.regression.LabeledPoint
+import org.jsoup.Jsoup
+import org.openscience.cdk.interfaces.IAtomContainer
+
+import models.dao.ProfileDAO
+import play.api.Logger
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.functional.syntax.unlift
+import play.api.libs.json.JsPath
+import play.api.libs.json.Writes
+import se.uu.farmbio.vs.{ MLlibSVM, ConformerPipeline, PosePipeline, SGUtils_Serial}
+import se.uu.it.cp.InductiveClassifier
 
 object Profile {
   //Need to be Updated
