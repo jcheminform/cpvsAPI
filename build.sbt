@@ -26,6 +26,8 @@ libraryDependencies ++= Seq(
 
 scalacOptions += "-feature"
 
+javaOptions ++= Seq("-Xmx2048M", "-Xms512M", "-XX:MaxPermSize=2048M")
+
 proguardOptions in Proguard ++= Seq("-dontnote", "-dontwarn", "-ignorewarnings")
 
 inConfig(Proguard)(javaOptions in proguard := Seq("-Xmx2g"))
