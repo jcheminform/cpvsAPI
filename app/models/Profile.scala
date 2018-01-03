@@ -12,16 +12,23 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.net.URL
-import java.io.FileOutputStream
-import java.io.BufferedOutputStream
+import java.io._
 import java.net.HttpURLConnection
-import java.io.OutputStream
-import java.io.InputStream
+import java.lang.Long
+import scala.collection.JavaConversions._
 import scala.io.Source
-import java.io.BufferedInputStream
+
 import scala.language.postfixOps
 import se.uu.farmbio.vs.ConformerPipeline
 import se.uu.farmbio.vs.PosePipeline
+import se.uu.farmbio.vs.SGUtils_Serial
+import org.openscience.cdk.io.iterator.IteratingSDFReader
+import org.openscience.cdk.DefaultChemObjectBuilder
+import org.openscience.cdk.interfaces.IAtomContainer
+import java.sql.DriverManager
+import se.uu.it.cp.InductiveClassifier
+import se.uu.farmbio.vs.MLlibSVM
+import org.apache.spark.mllib.regression.LabeledPoint
 
 object Profile {
   //Need to be Updated
@@ -29,6 +36,16 @@ object Profile {
   val VINA_CONF_URL = "http://pele.farmbio.uu.se/cpvs-vina/conf.txt"
   val VINA_HOME = "http://pele.farmbio.uu.se/cpvs-vina/"
   val OBABEL_HOME_URL = "http://pele.farmbio.uu.se/cpvs-vina/"
+
+  //Use local receptors file if set otherwise complain
+  val resourcesHome = if (System.getenv("RESOURCES_HOME") != null) {
+    Logger.info("JOB_INFO: using local resources for reading receptors: " + System.getenv("RESOURCES_HOME"))
+    System.getenv("RESOURCES_HOME")
+  } else {
+    Logger.error("JOB_ERROR: RESOURCES_HOME is not set")
+    System.exit(1)
+    "Path Not set"
+  }
 
   implicit val ProfileWrites: Writes[Profile] = (
     (JsPath \ "l_id").write[String] and
@@ -69,26 +86,13 @@ object Profile {
         OBABEL_HOME_URL
       }
 
-      //Use local receptors file if set otherwise complain
-      val receptorHome = if (System.getenv("RECEPTORS_HOME") != null) {
-        Logger.info("JOB_INFO: using local directory for reading receptors: " + System.getenv("RECEPTORS_HOME"))
-        System.getenv("RECEPTORS_HOME")
-      } else {
-        Logger.error("JOB_ERROR: RECEPTORS_HOME is not set")
-        System.exit(1)
-        "Path Not set"
-      }
-
       //Create ReceptorPath
       val rNameWithExtension = rName + ".pdbqt"
-      val receptorPath = receptorHome + rNameWithExtension
+      val receptorPath = resourcesHome + rNameWithExtension
       Logger.info("JOB_INFO: The receptor file complete path is " + receptorPath)
 
-      //Get Link for the conformer file
-      val linkHref = getDownloadLink(lId, rName, receptorHome)
-
-      //Download the conformer using link
-      val ligand = downloadFile(linkHref, lId)
+      //Get link and download the conformer using link
+      val ligand = downloadFile(getDownloadLink(lId), lId)
 
       //Compute Score using docking
       //Convert sdf ligand to pdbqt format using obabel
@@ -115,23 +119,59 @@ object Profile {
       lScore
     }
 
+  def predictAndSave(lId: String, rName: String, rPdbCode: String): String = {
+
+    //Get link and download the conformer using link
+    val ligand = downloadFile(getDownloadLink(lId), lId)
+
+    //Loading oldSig2ID Mapping
+    val oldSig2ID: Map[String, Long] = SGUtils_Serial.loadSig2IdMap(resourcesHome + "/sig2Id")
+
+    //Getting Seq of IAtomContainer
+    val iAtomSeq: Seq[IAtomContainer] = ConformerPipeline.sdfStringToIAtomContainer(ligand)
+
+    //Array of IAtomContainers
+    val iAtomArray = iAtomSeq.toArray
+
+    //Unit sent as carry, later we can add any type required
+    val iAtomArrayWithFakeCarry = iAtomArray.map { case x => (Unit, x) }
+
+    //Generate Signature(in vector form) of New Molecule(s)
+    val newSigns = SGUtils_Serial.atoms2LP_carryData(iAtomArrayWithFakeCarry, oldSig2ID, 1, 3)
+
+    //Load Model
+    //val svmModel = ProfileDAO.getModelByReceptorNameAndPdbCode(rName, rPdbCode)
+    val svmModel = loadModel(rName, rPdbCode)
+    //Predict New molecule(s)
+    val predictions = newSigns.map { case (sdfMols, features) => (features, svmModel.predict(features.toArray, 0.5)) }
+
+    //Actual prediction
+    val prediction: Array[String] = predictions.map {
+      case (vector, predSet) => predSet.toSeq(0) match {
+        case 0.0 => "BAD"
+        case 1.0 => "GOOD"
+        case _   => "UNKNOWN"
+      }
+
+    }
+
+    //Update Predictions to the Prediction Table
+    ProfileDAO.saveLigandPredictionById(lId, prediction(0).toString, rName, rPdbCode)
+    prediction(0).toString
+  }
+
   private def downloadFile(urlLink: String, lId: String): String = {
     val url = new URL(urlLink)
     val connection = url.openConnection().asInstanceOf[HttpURLConnection]
     connection.setRequestMethod("GET")
     val in: InputStream = connection.getInputStream
-    val fileToDownloadAs = new java.io.File("data/" + lId + ".sdf")
-    val out: OutputStream = new BufferedOutputStream(new FileOutputStream(fileToDownloadAs))
     val byteArray = Stream.continually(in.read).takeWhile(-1 !=).map(_.toByte).toArray
-    out.write(byteArray)
-    out.flush()
-    out.close
     val byteString = Source.fromBytes(byteArray).getLines().toArray.reduce(_ + "\n" + _)
     byteString
   }
 
   //Using Jsoup to reach parse zinc webpage
-  private def getDownloadLink(lId: String, rName: String, receptorHome: String): String = {
+  private def getDownloadLink(lId: String): String = {
 
     //Get download link for conformer
     val httpLink = "http://zinc.docking.org/substance/" + lId
@@ -144,6 +184,37 @@ object Profile {
     val linkHref = link.attr("href");
     Logger.info("JOB_INFO: Required link is " + linkHref)
     linkHref
+  }
+
+  def loadModel(rName: String, rPdbCode: String) = {
+    //Connection Initialization
+    Class.forName("org.mariadb.jdbc.Driver")
+    val jdbcUrl = s"jdbc:mysql://localhost:3306/db_profile?user=root&password=2264421_root"
+    val connection = DriverManager.getConnection(jdbcUrl)
+
+    //Reading Pre-trained model from Database
+    var model: InductiveClassifier[MLlibSVM, LabeledPoint] = null
+    if (!(connection.isClosed())) {
+
+      val sqlRead = connection.prepareStatement("SELECT r_model FROM MODELS WHERE r_name = ? and r_pdbCode = ?")
+      sqlRead.setString(1, rName)
+      sqlRead.setString(2, rPdbCode)
+      val rs = sqlRead.executeQuery()
+      rs.next()
+
+      val modelStream = rs.getObject("r_model").asInstanceOf[Array[Byte]]
+      val modelBaip = new ByteArrayInputStream(modelStream)
+      val modelOis = new ObjectInputStream(modelBaip)
+      model = modelOis.readObject().asInstanceOf[InductiveClassifier[MLlibSVM, LabeledPoint]]
+
+      rs.close
+      sqlRead.close
+      connection.close()
+    } else {
+      println("MariaDb Connection is Close")
+      System.exit(1)
+    }
+    model
   }
 
 }

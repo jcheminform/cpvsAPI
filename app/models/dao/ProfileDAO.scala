@@ -4,7 +4,6 @@ import anorm._
 import models.Profile
 import play.api.db.DB
 import play.api.Play.current
-import java.io.PrintWriter
 
 object ProfileDAO {
 
@@ -22,7 +21,22 @@ object ProfileDAO {
           "r_pdbCode" -> rPdbCode).executeInsert()
     }
   }
-
+  
+  def saveLigandPredictionById(lId: String, lPrediction: String, rName: String, rPdbCode: String) = {
+    DB.withConnection { implicit c =>
+      SQL(
+        """
+          | INSERT IGNORE INTO PREDICTED_LIGANDS (l_id, l_prediction, r_name, r_pdbCode)
+          | VALUES
+          |   ({l_id}, {l_prediction}, {r_name}, {r_pdbCode});
+        """.stripMargin).on(
+          "l_id" -> lId,
+          "l_prediction" -> lPrediction,
+          "r_name" -> rName,
+          "r_pdbCode" -> rPdbCode).executeInsert()
+    }
+  }
+  
   def profileByLigandId(lId: String): List[Profile] = {
     DB.withConnection { implicit c =>
       val results = SQL(
@@ -35,7 +49,7 @@ object ProfileDAO {
           | WHERE PREDICTED_LIGANDS.l_id={l_id};
         """.stripMargin).on(
           "l_id" -> lId).apply()
-
+    
       results.map { row =>
         Profile(
           row[String]("l_id"),
