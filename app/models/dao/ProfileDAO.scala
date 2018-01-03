@@ -22,6 +22,19 @@ object ProfileDAO {
     }
   }
   
+  def predictionExistCheck(lId: String, rPdbCode: String) : Int = {
+    DB.withConnection { implicit c =>
+       val results = SQL(
+        """
+          | SELECT EXISTS(SELECT 1 FROM PREDICTED_LIGANDS 
+          | WHERE l_id LIKE {l_id} LIMIT 1) as EXIST;
+        """.stripMargin).on(
+          "l_id" -> lId).as(SqlParser.scalar[Int].single)
+       results
+    }
+    
+  }
+  
   def saveLigandPredictionById(lId: String, lPrediction: String, rName: String, rPdbCode: String) = {
     DB.withConnection { implicit c =>
       SQL(

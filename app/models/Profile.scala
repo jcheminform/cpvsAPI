@@ -21,7 +21,7 @@ import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.functional.syntax.unlift
 import play.api.libs.json.JsPath
 import play.api.libs.json.Writes
-import se.uu.farmbio.vs.{MLlibSVM, ConformerPipeline, PosePipeline, SGUtils_Serial}
+import se.uu.farmbio.vs.{ MLlibSVM, ConformerPipeline, PosePipeline, SGUtils_Serial }
 import se.uu.it.cp.InductiveClassifier
 
 object Profile {
@@ -114,44 +114,50 @@ object Profile {
     }
 
   def predictAndSave(lId: String, rName: String, rPdbCode: String): String = {
+    //Row Existance test
+    var result: String = null
+    val predictionExist = ProfileDAO.predictionExistCheck(lId, rPdbCode)
+   
+    if (predictionExist == 1) result = "Prediction Already Exist, Use GET"
+    else {
+      //Get link and download the conformer using link
+      val ligand = downloadFile(getDownloadLink(lId), lId)
 
-    //Get link and download the conformer using link
-    val ligand = downloadFile(getDownloadLink(lId), lId)
+      //Loading oldSig2ID Mapping
+      val oldSig2ID: Map[String, Long] = SGUtils_Serial.loadSig2IdMap(resourcesHome + "/sig2Id")
 
-    //Loading oldSig2ID Mapping
-    val oldSig2ID: Map[String, Long] = SGUtils_Serial.loadSig2IdMap(resourcesHome + "/sig2Id")
+      //Getting Seq of IAtomContainer
+      val iAtomSeq: Seq[IAtomContainer] = ConformerPipeline.sdfStringToIAtomContainer(ligand)
 
-    //Getting Seq of IAtomContainer
-    val iAtomSeq: Seq[IAtomContainer] = ConformerPipeline.sdfStringToIAtomContainer(ligand)
+      //Array of IAtomContainers
+      val iAtomArray = iAtomSeq.toArray
 
-    //Array of IAtomContainers
-    val iAtomArray = iAtomSeq.toArray
+      //Unit sent as carry, later we can add any type required
+      val iAtomArrayWithFakeCarry = iAtomArray.map { case x => (Unit, x) }
 
-    //Unit sent as carry, later we can add any type required
-    val iAtomArrayWithFakeCarry = iAtomArray.map { case x => (Unit, x) }
+      //Generate Signature(in vector form) of New Molecule(s)
+      val newSigns = SGUtils_Serial.atoms2LP_carryData(iAtomArrayWithFakeCarry, oldSig2ID, 1, 3)
 
-    //Generate Signature(in vector form) of New Molecule(s)
-    val newSigns = SGUtils_Serial.atoms2LP_carryData(iAtomArrayWithFakeCarry, oldSig2ID, 1, 3)
+      //Load Model
+      //val svmModel = ProfileDAO.getModelByReceptorNameAndPdbCode(rName, rPdbCode)
+      val svmModel = loadModel(rName, rPdbCode)
+      //Predict New molecule(s)
+      val predictions = newSigns.map { case (sdfMols, features) => (features, svmModel.predict(features.toArray, 0.5)) }
 
-    //Load Model
-    //val svmModel = ProfileDAO.getModelByReceptorNameAndPdbCode(rName, rPdbCode)
-    val svmModel = loadModel(rName, rPdbCode)
-    //Predict New molecule(s)
-    val predictions = newSigns.map { case (sdfMols, features) => (features, svmModel.predict(features.toArray, 0.5)) }
-
-    //Actual prediction
-    val prediction: Array[String] = predictions.map {
-      case (vector, predSet) => predSet.toSeq(0) match {
-        case 0.0 => "BAD"
-        case 1.0 => "GOOD"
-        case _   => "UNKNOWN"
+      //Actual prediction
+      val prediction: Array[String] = predictions.map {
+        case (vector, predSet) => predSet.toSeq(0) match {
+          case 0.0 => "BAD"
+          case 1.0 => "GOOD"
+          case _   => "UNKNOWN"
+        }
       }
 
+      //Update Predictions to the Prediction Table
+      ProfileDAO.saveLigandPredictionById(lId, prediction(0).toString, rName, rPdbCode)
+      result = prediction(0).toString
     }
-
-    //Update Predictions to the Prediction Table
-    ProfileDAO.saveLigandPredictionById(lId, prediction(0).toString, rName, rPdbCode)
-    prediction(0).toString
+    result
   }
 
   private def downloadFile(urlLink: String, lId: String): String = {
