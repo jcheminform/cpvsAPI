@@ -53,6 +53,12 @@ object Profile {
 
   def computeAndSaveScore(lId: String, rName: String, rPdbCode: String): String =
     {
+      //Row Existance test
+    var result: String = null
+    val scoreExist = ProfileDAO.scoreExistCheck(lId, rPdbCode)
+   
+    if (scoreExist==1) result = "Score Already Exist, Use GET"
+    else {
       //Use local sh file if VINA_DOCKING is set
       val vinaDockingPath = if (System.getenv("VINA_DOCKING") != null) {
         Logger.info("JOB_INFO: using local multivana: " + System.getenv("VINA_DOCKING"))
@@ -110,7 +116,9 @@ object Profile {
 
       //Save Score in DOCKED_LIGANDS
       ProfileDAO.saveLigandScoreById(lId, lScore, rName, rPdbCode)
-      lScore
+      result = lScore
+    }
+    result
     }
 
   def predictAndSave(lId: String, rName: String, rPdbCode: String): String = {
@@ -118,7 +126,7 @@ object Profile {
     var result: String = null
     val predictionExist = ProfileDAO.predictionExistCheck(lId, rPdbCode)
    
-    if (predictionExist == 1) result = "Prediction Already Exist, Use GET"
+    if (predictionExist==1) result = "Prediction Already Exist, Use GET"
     else {
       //Get link and download the conformer using link
       val ligand = downloadFile(getDownloadLink(lId), lId)
