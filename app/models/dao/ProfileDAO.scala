@@ -22,7 +22,6 @@ object ProfileDAO {
     }
   }
 
-  
   def predictionExistCheck(lId: String, rPdbCode: String): Int = {
     DB.withConnection { implicit c =>
       val results = SQL(
@@ -33,12 +32,12 @@ object ProfileDAO {
         """.stripMargin).on(
           "l_id" -> lId,
           "r_pdbCode" -> rPdbCode)
-          .as(SqlParser.scalar[Int].single)
+        .as(SqlParser.scalar[Int].single)
       results
     }
 
   }
-  
+
   def scoreExistCheck(lId: String, rPdbCode: String): Int = {
     DB.withConnection { implicit c =>
       val results = SQL(
@@ -49,7 +48,7 @@ object ProfileDAO {
         """.stripMargin).on(
           "l_id" -> lId,
           "r_pdbCode" -> rPdbCode)
-          .as(SqlParser.scalar[Int].single)
+        .as(SqlParser.scalar[Int].single)
       results
     }
 

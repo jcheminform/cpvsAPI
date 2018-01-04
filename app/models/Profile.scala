@@ -54,79 +54,79 @@ object Profile {
   def computeAndSaveScore(lId: String, rName: String, rPdbCode: String): String =
     {
       //Row Existance test
-    var result: String = null
-    val scoreExist = ProfileDAO.scoreExistCheck(lId, rPdbCode)
-   
-    if (scoreExist==1) result = "Score Already Exist, Use GET"
-    else {
-      //Use local sh file if VINA_DOCKING is set
-      val vinaDockingPath = if (System.getenv("VINA_DOCKING") != null) {
-        Logger.info("JOB_INFO: using local multivana: " + System.getenv("VINA_DOCKING"))
-        System.getenv("VINA_DOCKING")
-      } else {
-        Logger.info("JOB_INFO: using remote multivina: " + VINA_DOCKING_URL)
-        VINA_DOCKING_URL
+      var result: String = null
+      val scoreExist = ProfileDAO.scoreExistCheck(lId, rPdbCode)
+
+      if (scoreExist == 1) result = "Score Already Exist, Use GET"
+      else {
+        //Use local sh file if VINA_DOCKING is set
+        val vinaDockingPath = if (System.getenv("VINA_DOCKING") != null) {
+          Logger.info("JOB_INFO: using local multivana: " + System.getenv("VINA_DOCKING"))
+          System.getenv("VINA_DOCKING")
+        } else {
+          Logger.info("JOB_INFO: using remote multivina: " + VINA_DOCKING_URL)
+          VINA_DOCKING_URL
+        }
+
+        //Use local vina conf.txt file if VINA_CONF is set
+        val vinaConfPath = if (System.getenv("VINA_CONF") != null) {
+          Logger.info("JOB_INFO: using local vina conf: " + System.getenv("VINA_CONF"))
+          System.getenv("VINA_CONF")
+        } else {
+          Logger.info("JOB_INFO: using remote vina conf: " + VINA_CONF_URL)
+          VINA_CONF_URL
+        }
+
+        //Use local vina conf.txt file if VINA_CONF is set
+        val obabelPath = if (System.getenv("OBABEL_HOME") != null) {
+          Logger.info("JOB_INFO: using local obabel: " + System.getenv("OBABEL_HOME"))
+          System.getenv("OBABEL_HOME")
+        } else {
+          Logger.info("JOB_INFO: using remote obabel: " + OBABEL_HOME_URL)
+          OBABEL_HOME_URL
+        }
+
+        //Create ReceptorPath
+        val rNameWithExtension = rName + ".pdbqt"
+        val receptorPath = resourcesHome + rNameWithExtension
+        Logger.info("JOB_INFO: The receptor file complete path is " + receptorPath)
+
+        //Get link and download the conformer using link
+        val ligand = downloadFile(getDownloadLink(lId), lId)
+
+        //Compute Score using docking
+        //Convert sdf ligand to pdbqt format using obabel
+        val pdbqtLigand: String = "MODEL\n" + ConformerPipeline.pipeString(
+          ligand,
+          List(obabelPath, "-i", "sdf", "-o", "pdbqt")).trim() + "\nENDMDL"
+
+        //Docking pdbqtLigand against receptor using VINA
+        val dockedpdbqt: String = ConformerPipeline.pipeString(
+          pdbqtLigand,
+          List(vinaDockingPath, "--receptor",
+            receptorPath, "--config", vinaConfPath))
+
+        //Convert pdbqt ligand to sdf format using obabel
+        val pdbqtToSdfLigand = ConformerPipeline.pipeString(
+          dockedpdbqt,
+          List(obabelPath, "-i", "pdbqt", "-o", "sdf"))
+
+        //Cleaning Molecule after docking and getting score
+        val lScore = PosePipeline.parseScore(ConformerPipeline.cleanPoses(pdbqtToSdfLigand, false).trim).toString
+
+        //Save Score in DOCKED_LIGANDS
+        ProfileDAO.saveLigandScoreById(lId, lScore, rName, rPdbCode)
+        result = lScore
       }
-
-      //Use local vina conf.txt file if VINA_CONF is set
-      val vinaConfPath = if (System.getenv("VINA_CONF") != null) {
-        Logger.info("JOB_INFO: using local vina conf: " + System.getenv("VINA_CONF"))
-        System.getenv("VINA_CONF")
-      } else {
-        Logger.info("JOB_INFO: using remote vina conf: " + VINA_CONF_URL)
-        VINA_CONF_URL
-      }
-
-      //Use local vina conf.txt file if VINA_CONF is set
-      val obabelPath = if (System.getenv("OBABEL_HOME") != null) {
-        Logger.info("JOB_INFO: using local obabel: " + System.getenv("OBABEL_HOME"))
-        System.getenv("OBABEL_HOME")
-      } else {
-        Logger.info("JOB_INFO: using remote obabel: " + OBABEL_HOME_URL)
-        OBABEL_HOME_URL
-      }
-
-      //Create ReceptorPath
-      val rNameWithExtension = rName + ".pdbqt"
-      val receptorPath = resourcesHome + rNameWithExtension
-      Logger.info("JOB_INFO: The receptor file complete path is " + receptorPath)
-
-      //Get link and download the conformer using link
-      val ligand = downloadFile(getDownloadLink(lId), lId)
-
-      //Compute Score using docking
-      //Convert sdf ligand to pdbqt format using obabel
-      val pdbqtLigand: String = "MODEL\n" + ConformerPipeline.pipeString(
-        ligand,
-        List(obabelPath, "-i", "sdf", "-o", "pdbqt")).trim() + "\nENDMDL"
-
-      //Docking pdbqtLigand against receptor using VINA
-      val dockedpdbqt: String = ConformerPipeline.pipeString(
-        pdbqtLigand,
-        List(vinaDockingPath, "--receptor",
-          receptorPath, "--config", vinaConfPath))
-
-      //Convert pdbqt ligand to sdf format using obabel
-      val pdbqtToSdfLigand = ConformerPipeline.pipeString(
-        dockedpdbqt,
-        List(obabelPath, "-i", "pdbqt", "-o", "sdf"))
-
-      //Cleaning Molecule after docking and getting score
-      val lScore = PosePipeline.parseScore(ConformerPipeline.cleanPoses(pdbqtToSdfLigand, false).trim).toString
-
-      //Save Score in DOCKED_LIGANDS
-      ProfileDAO.saveLigandScoreById(lId, lScore, rName, rPdbCode)
-      result = lScore
-    }
-    result
+      result
     }
 
   def predictAndSave(lId: String, rName: String, rPdbCode: String): String = {
     //Row Existance test
     var result: String = null
     val predictionExist = ProfileDAO.predictionExistCheck(lId, rPdbCode)
-   
-    if (predictionExist==1) result = "Prediction Already Exist, Use GET"
+
+    if (predictionExist == 1) result = "Prediction Already Exist, Use GET"
     else {
       //Get link and download the conformer using link
       val ligand = downloadFile(getDownloadLink(lId), lId)
