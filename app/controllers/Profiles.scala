@@ -28,7 +28,7 @@ object Profiles extends Controller {
   }
 
   def welcome() = Action {
-    Ok("CPVS API is Up and Running" + "\n" + "Please Use /profiles end point for details and /receptors end point for list of receptors and their pdbCodes")
+    Ok("CPVS API is Up and Running")
   }
 
 }

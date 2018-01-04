@@ -21,20 +21,39 @@ object ProfileDAO {
           "r_pdbCode" -> rPdbCode).executeInsert()
     }
   }
-  
-  def predictionExistCheck(lId: String, rPdbCode: String) : Int = {
+
+  def predictionExistCheck(lId: String, rPdbCode: String): Int = {
     DB.withConnection { implicit c =>
-       val results = SQL(
+      val results = SQL(
         """
           | SELECT EXISTS(SELECT 1 FROM PREDICTED_LIGANDS 
-          | WHERE l_id LIKE {l_id} LIMIT 1) as EXIST;
+          | WHERE l_id LIKE {l_id}
+          | AND r_pdbCode LIKE {r_pdbCode} LIMIT 1) as EXIST;
         """.stripMargin).on(
-          "l_id" -> lId).as(SqlParser.scalar[Int].single)
-       results
+          "l_id" -> lId,
+          "r_pdbCode" -> rPdbCode)
+        .as(SqlParser.scalar[Int].single)
+      results
     }
-    
+
   }
-  
+
+  def scoreExistCheck(lId: String, rPdbCode: String): Int = {
+    DB.withConnection { implicit c =>
+      val results = SQL(
+        """
+          | SELECT EXISTS(SELECT 1 FROM DOCKED_LIGANDS 
+          | WHERE l_id LIKE {l_id}
+          | AND r_pdbCode LIKE {r_pdbCode} LIMIT 1) as EXIST;
+        """.stripMargin).on(
+          "l_id" -> lId,
+          "r_pdbCode" -> rPdbCode)
+        .as(SqlParser.scalar[Int].single)
+      results
+    }
+
+  }
+
   def saveLigandPredictionById(lId: String, lPrediction: String, rName: String, rPdbCode: String) = {
     DB.withConnection { implicit c =>
       SQL(
@@ -49,7 +68,7 @@ object ProfileDAO {
           "r_pdbCode" -> rPdbCode).executeInsert()
     }
   }
-  
+
   def profileByLigandId(lId: String): List[Profile] = {
     DB.withConnection { implicit c =>
       val results = SQL(
@@ -62,7 +81,7 @@ object ProfileDAO {
           | WHERE PREDICTED_LIGANDS.l_id={l_id};
         """.stripMargin).on(
           "l_id" -> lId).apply()
-    
+
       results.map { row =>
         Profile(
           row[String]("l_id"),
