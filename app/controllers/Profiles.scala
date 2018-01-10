@@ -28,7 +28,7 @@ object Profiles extends Controller {
   }
 
   def welcome() = Action {
-    Ok("CPVS API is Up and Running")
+    Ok(views.html.index("CPVS API is Up and Running"))
   }
 
 }
