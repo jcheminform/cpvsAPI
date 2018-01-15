@@ -23,6 +23,7 @@ import play.api.libs.json.JsPath
 import play.api.libs.json.Writes
 import se.uu.farmbio.vs.{ MLlibSVM, ConformerPipeline, PosePipeline, SGUtils_Serial }
 import se.uu.it.cp.InductiveClassifier
+import java.io.PrintWriter
 
 object Profile {
   //Need to be Updated
@@ -93,11 +94,14 @@ object Profile {
 
         //Get link and download the conformer using link
         val ligand = downloadFile(getDownloadLink(lId), lId)
-
+      
+        //Setting title
+        val lWithTitle : String = lId + ligand
+        
         //Compute Score using docking
         //Convert sdf ligand to pdbqt format using obabel
         val pdbqtLigand: String = "MODEL\n" + ConformerPipeline.pipeString(
-          ligand,
+          lWithTitle,
           List(obabelPath, "-i", "sdf", "-o", "pdbqt")).trim() + "\nENDMDL"
 
         //Docking pdbqtLigand against receptor using VINA
@@ -110,7 +114,7 @@ object Profile {
         val pdbqtToSdfLigand = ConformerPipeline.pipeString(
           dockedpdbqt,
           List(obabelPath, "-i", "pdbqt", "-o", "sdf"))
-
+   
         //Cleaning Molecule after docking and getting score
         val lScore = PosePipeline.parseScore(ConformerPipeline.cleanPoses(pdbqtToSdfLigand, false).trim).toString
 
@@ -178,18 +182,14 @@ object Profile {
     byteString
   }
 
-  //Using Jsoup to reach parse zinc webpage
+  //To reach and parse zinc webpage
   private def getDownloadLink(lId: String): String = {
 
     //Get download link for conformer
-    val httpLink = "http://zinc.docking.org/substance/" + lId
+    val httpLink = "http://zinc15.docking.org/substances/" + lId
     Logger.info("JOB_INFO: Download Page for " + lId + " is " + httpLink)
 
-    val doc = Jsoup.connect(httpLink).get();
-    val title = doc.title()
-    val link = doc.select("a[href*=f=d]").first()
-
-    val linkHref = link.attr("href");
+    val linkHref = httpLink + ".sdf"
     Logger.info("JOB_INFO: Required link is " + linkHref)
     linkHref
   }
