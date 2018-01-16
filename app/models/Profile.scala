@@ -136,7 +136,7 @@ object Profile {
       val ligand = downloadFile(getDownloadLink(lId), lId)
 
       //Loading oldSig2ID Mapping
-      val oldSig2ID: Map[String, Long] = SGUtils_Serial.loadSig2IdMap(resourcesHome + "/sig2Id")
+      val oldSig2ID: Map[String, Long] = SGUtils_Serial.loadSig2IdMap(resourcesHome + "sig2Id")
 
       //Getting Seq of IAtomContainer
       val iAtomSeq: Seq[IAtomContainer] = ConformerPipeline.sdfStringToIAtomContainer(ligand)
@@ -152,7 +152,9 @@ object Profile {
 
       //Load Model
       //val svmModel = ProfileDAO.getModelByReceptorNameAndPdbCode(rName, rPdbCode)
-      val svmModel = loadModel(rName, rPdbCode)
+      val svmModel = ProfileDAO.loadModel(rName)
+      //val svmModel = loadModel(rName,rPdbCode)
+      
       //Predict New molecule(s)
       val predictions = newSigns.map { case (sdfMols, features) => (features, svmModel.predict(features.toArray, 0.5)) }
 
@@ -192,37 +194,6 @@ object Profile {
     val linkHref = httpLink + ".sdf"
     Logger.info("JOB_INFO: Required link is " + linkHref)
     linkHref
-  }
-
-  def loadModel(rName: String, rPdbCode: String) = {
-    //Connection Initialization
-    Class.forName("org.mariadb.jdbc.Driver")
-    val jdbcUrl = s"jdbc:mysql://localhost:3306/db_profile?user=root&password=2264421_root"
-    val connection = DriverManager.getConnection(jdbcUrl)
-
-    //Reading Pre-trained model from Database
-    var model: InductiveClassifier[MLlibSVM, LabeledPoint] = null
-    if (!(connection.isClosed())) {
-
-      val sqlRead = connection.prepareStatement("SELECT r_model FROM MODELS WHERE r_name = ? and r_pdbCode = ?")
-      sqlRead.setString(1, rName)
-      sqlRead.setString(2, rPdbCode)
-      val rs = sqlRead.executeQuery()
-      rs.next()
-
-      val modelStream = rs.getObject("r_model").asInstanceOf[Array[Byte]]
-      val modelBaip = new ByteArrayInputStream(modelStream)
-      val modelOis = new ObjectInputStream(modelBaip)
-      model = modelOis.readObject().asInstanceOf[InductiveClassifier[MLlibSVM, LabeledPoint]]
-
-      rs.close
-      sqlRead.close
-      connection.close()
-    } else {
-      println("MariaDb Connection is Close")
-      System.exit(1)
-    }
-    model
   }
 
 }

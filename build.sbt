@@ -13,9 +13,10 @@ doc in Compile <<= target.map(_ / "none")
 
 libraryDependencies ++= Seq(
   jdbc,
-  anorm,
   cache,
   ws,
+ // anorm,
+  "com.typesafe.play" %% "anorm" % "2.5.0",
   "mysql" % "mysql-connector-java" % "5.1.18",
   "org.mariadb.jdbc" % "mariadb-java-client" % "1.7.0",
   "org.jsoup" % "jsoup" % "1.11.2",
