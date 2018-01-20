@@ -102,15 +102,18 @@ object ProfileDAO {
 
   }
 
-  def loadModel(rName: String): InductiveClassifier[MLlibSVM, LabeledPoint] = {
+  def loadModel(rName: String, rPdbCode: String): InductiveClassifier[MLlibSVM, LabeledPoint] = {
   DB.withConnection { implicit c =>
     val result = SQL(
       """
         | SELECT r_model
         | FROM MODELS
         | WHERE r_name={r_name}
+        | AND r_PdbCode={r_PdbCode}
+        | LIMIT 1 
       """.stripMargin)
-      .on("r_name" -> rName)
+      .on("r_name" -> rName,
+          "r_PdbCode" -> rPdbCode)
       .as(SqlParser.byteArray("r_model").single) 
     Logger.info(s"result ${result.getClass} => $result")
     deserialize[InductiveClassifier[MLlibSVM, LabeledPoint]](result)

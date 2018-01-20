@@ -152,7 +152,7 @@ object Profile {
 
       //Load Model
       //val svmModel = ProfileDAO.getModelByReceptorNameAndPdbCode(rName, rPdbCode)
-      val svmModel = ProfileDAO.loadModel(rName)
+      val svmModel = ProfileDAO.loadModel(rName,rPdbCode)
       //val svmModel = loadModel(rName,rPdbCode)
       
       //Predict New molecule(s)
