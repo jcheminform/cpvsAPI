@@ -19,6 +19,4 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-mocha" % "1.0.0")
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "3.0.0")
 
-addSbtPlugin("com.lightbend.sbt" % "sbt-proguard" % "0.3.0")
-
 dependencyOverrides += "org.scala-sbt" % "sbt" % "0.13.7"
