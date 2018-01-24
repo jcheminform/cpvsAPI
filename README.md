@@ -6,6 +6,6 @@ This is Rest API for conformal prediction based virtual screening. Play framewor
 
 # ENV VAR
 
-MARIADB_IP	This needs to set the machine where mariadb is running
+MARIADB_IP	This needs to be set to the machine where mariadb is running
 
 We are using mariadb default port i.e. 3306
