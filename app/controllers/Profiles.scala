@@ -10,7 +10,7 @@ object Profiles extends Controller {
   def profileByLigandId(lId: String) = Action {
     val allProfiles = Profile.findProfileByLigandId(lId)
     if ((allProfiles == null) || (allProfiles.length < 1)) {
-      NotFound("Profile Not Available in Database, but you can use our prediction service at /profile/prediction/lId/:lid/rName/:rName/rPdbCode/:rPdbCode")
+      NotFound("Profile Not Available in Database, but you can use our prediction service")
     } else
       Ok(Json.obj("result" -> allProfiles))
   }
@@ -28,7 +28,7 @@ object Profiles extends Controller {
   }
 
   def welcome() = Action {
-    Ok(views.html.index("CPVS API is Up and Running"))
+    Redirect(url = "/assets/cpvs-api-doc/index.html") 
   }
 
 }
