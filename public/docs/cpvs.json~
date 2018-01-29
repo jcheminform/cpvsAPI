@@ -1,0 +1,244 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is API documentation for [Conformal Prediction based Virtual Screening](https://github.com/laeeq80/spark-cpvs-vina). The API is responsible for three web services i.e. providing ready-made prediction profiles for compounds, real-time docking for small number of molecules and a predictive on-demand docking service for large-scale compound profile generation (last one not ready yet). \n\nA profile contains ligand id, its prediction and docking score (if available) against multiple receptors.",
+    "title": "Virtual Screening With Conformal Prediction",
+    "version": "1.0"
+  },
+  "host": "",
+  "schemes": [
+    "http"
+  ],
+  "basePath": "/",
+  "paths": {
+    "/receptors": {
+      "get": {
+        "tags": [
+          "Receptors"
+        ],
+        "summary": "Get a list of available receptor models",
+        "description": "Gives a list of receptor models available in the database. This is useful if the user is unsure which models are available in the database.",
+        "operationId": "receptorList",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Receptors"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sample": {
+      "get": {
+        "tags": [
+          "Ligands"
+        ],
+        "summary": "Get a sample of available ligands",
+        "description": "Gives a sample (not random) of ligands available in the database. This is useful if the user wants to test API and unsure which ligands are available in the database.",
+        "operationId": "sampleLigands",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Ligands"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profile/lId/{lid}": {
+      "get": {
+        "tags": [
+          "Ligands"
+        ],
+        "summary": "Get ligand predictive profile by id",
+        "description": "Takes in ligand id and returns its profile including id, score, prediction, receptor(s) name and receptor(s) PDB code. The operation downloads new molecule from zinc and predict it agianst ready made models",
+        "operationId": "profileByLigandId",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lid",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "Ligand id that need to be considered for profiling"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Profile"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Ligand Name"
+          },
+          "404": {
+            "description": "Ligand Profile Not Found"
+          },
+          "405": {
+            "description": "Ligand Profile Not Found"
+          }
+        }
+      }
+    },
+    "/predict/lId/{lid}/rName/{rName}/rPdbCode/{rPdbCode}": {
+      "post": {
+        "tags": [
+          "Ligands"
+        ],
+        "summary": "Make predictions for a new ligand",
+        "description": "Takes in ligand id, receptor name and receptor pdb Code and make prediction against the selected receptor model and save the prediction. This is useful if ligand prediction is not already available in the database.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lid",
+            "in": "path",
+            "description": "Ligand id that need to be considered for profiling",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "rName",
+            "in": "path",
+            "description": "Receptor Name relevant to model against which profiling needed to be perfomed",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "rPdbCode",
+            "in": "path",
+            "description": "Receptor PDB code relevant to model against which profiling needed to be perfomed",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Prediction"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dock/lId/{lid}/rName/{rName}/rPdbCode/{rPdbCode}": {
+      "post": {
+        "tags": [
+          "Ligands"
+        ],
+        "summary": "Docks a new ligand",
+        "description": "Takes in ligand id, receptor name and receptor pdb Code and docks ligand against the selected receptor and save the score. This is useful if the docking score is not already available in the database.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lid",
+            "in": "path",
+            "description": "Ligand id that need to be considered for docking",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "rName",
+            "in": "path",
+            "description": "Receptor Name against which docking needed to be perfomed",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "rPdbCode",
+            "in": "path",
+            "description": "Receptor PDB code against which docking needed to be perfomed",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Score"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "l_id": {
+          "type": "string"
+        },
+        "l_score": {
+          "type": "string"
+        },
+        "l_prediction": {
+          "type": "string"
+        },
+        "r_name": {
+          "type": "string"
+        },
+        "r_pdbCode": {
+          "type": "string"
+        }
+      }
+    },
+    "Prediction": {
+      "type": "object",
+      "properties": {
+        "l_prediction": {
+          "type": "string"
+        }
+      }
+    },
+    "Score": {
+      "type": "object",
+      "properties": {
+        "l_score": {
+          "type": "string"
+        }
+      }
+    },
+    "Receptors": {
+      "type": "object",
+      "properties": {
+        "r_name": {
+          "type": "string"
+        },
+        "r_pdbCode": {
+          "type": "string"
+        }
+      }
+    },
+    "Ligands": {
+      "type": "string"
+    }
+  }
+}

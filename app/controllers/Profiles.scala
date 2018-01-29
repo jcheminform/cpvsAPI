@@ -28,7 +28,7 @@ object Profiles extends Controller {
   }
 
   def welcome() = Action {
-    Redirect(url = "/assets/cpvs-api-doc/index.html") 
+    Redirect(url = "/assets/docs/index.html") 
   }
 
 }
