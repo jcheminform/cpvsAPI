@@ -1,4 +1,4 @@
-{
+﻿{
   "swagger": "2.0",
   "info": {
     "description": "This is API documentation for [Conformal Prediction based Virtual Screening](https://github.com/laeeq80/spark-cpvs-vina). The API is responsible for three web services i.e. providing ready-made prediction profiles for compounds, real-time docking for small number of molecules and a predictive on-demand docking service for large-scale compound profile generation (last one not ready yet). \n\nA profile contains ligand id, its prediction and docking score (if available) against multiple receptors.",
@@ -63,7 +63,7 @@
           "Ligands"
         ],
         "summary": "Get ligand predictive profile by id",
-        "description": "Takes in ligand id and returns its profile including id, score, prediction, receptor(s) name and receptor(s) PDB code. The operation downloads new molecule from zinc and predict it agianst ready made models",
+        "description": "Takes in ligand id and returns its profile including id, score, prediction, receptor(s) name and receptor(s) PDB code.",
         "operationId": "profileByLigandId",
         "produces": [
           "application/json"
@@ -104,7 +104,7 @@
           "Ligands"
         ],
         "summary": "Make predictions for a new ligand",
-        "description": "Takes in ligand id, receptor name and receptor pdb Code and make prediction against the selected receptor model and save the prediction. This is useful if ligand prediction is not already available in the database.",
+        "description": "Takes in ligand id, receptor name and receptor pdb Code and make prediction against the selected receptor model and save the prediction. This is useful if ligand prediction is not already available in the database. The operation downloads new molecule from zinc and predict it against ready made models",
         "produces": [
           "application/json"
         ],
@@ -119,14 +119,14 @@
           {
             "name": "rName",
             "in": "path",
-            "description": "Receptor Name relevant to model against which profiling needed to be perfomed",
+            "description": "Receptor Name relevant to model against which profiling needed to be performed",
             "required": true,
             "type": "string"
           },
           {
             "name": "rPdbCode",
             "in": "path",
-            "description": "Receptor PDB code relevant to model against which profiling needed to be perfomed",
+            "description": "Receptor PDB code relevant to model against which profiling needed to be performed",
             "required": true,
             "type": "string"
           }
@@ -149,7 +149,7 @@
           "Ligands"
         ],
         "summary": "Docks a new ligand",
-        "description": "Takes in ligand id, receptor name and receptor pdb Code and docks ligand against the selected receptor and save the score. This is useful if the docking score is not already available in the database.",
+        "description": "Takes in ligand id, receptor name and receptor pdb Code and docks ligand against the selected receptor and save the score. This is useful if the docking score is not already available in the database. The operation downloads new molecule from zinc and docks it against ready made models.",
         "produces": [
           "application/json"
         ],
@@ -164,14 +164,14 @@
           {
             "name": "rName",
             "in": "path",
-            "description": "Receptor Name against which docking needed to be perfomed",
+            "description": "Receptor Name against which docking needed to be performed",
             "required": true,
             "type": "string"
           },
           {
             "name": "rPdbCode",
             "in": "path",
-            "description": "Receptor PDB code against which docking needed to be perfomed",
+            "description": "Receptor PDB code against which docking needed to be performed",
             "required": true,
             "type": "string"
           }
