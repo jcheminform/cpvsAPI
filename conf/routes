@@ -3,11 +3,11 @@
 # ~~~~
 
 # API Endpoints
-GET	   /sample														  controllers.Ligands.ligandSample()
+GET	   /ligands														  controllers.Ligands.ligandSample()
 GET    /receptors                                                     controllers.ReceptorsAndPdbs.receptorAndPdbIndex()		
-GET    /profile/lId/:lId                                             controllers.Profiles.profileByLigandId(lId)
-POST   /predict/lId/:lId/rName/:rName/rPdbCode/:rPdbCode   controllers.Profiles.predict(lId, rName, rPdbCode)		
-POST   /dock/lId/:lId/rName/:rName/rPdbCode/:rPdbCode             controllers.Profiles.dockAndSave(lId, rName, rPdbCode)
+GET    /ligands/:lId                                             controllers.Profiles.profileByLigandId(lId)
+POST   /ligands/:lId/rName/:rName/rPdbCode/:rPdbCode   controllers.Profiles.predict(lId, rName, rPdbCode)		
+POST   /scoreByLid/lId/:lId/rName/:rName/rPdbCode/:rPdbCode             controllers.Profiles.dockAndSave(lId, rName, rPdbCode)
 # Home page
 GET    /                                                              controllers.Profiles.welcome()
 

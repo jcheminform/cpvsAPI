@@ -1,9 +1,9 @@
-﻿{
+{
   "swagger": "2.0",
   "info": {
     "description": "This is API documentation for [Conformal Prediction based Virtual Screening](https://github.com/laeeq80/spark-cpvs-vina). The API is responsible for three web services i.e. providing ready-made prediction profiles for compounds, real-time docking for small number of molecules and a predictive on-demand docking service for large-scale compound profile generation (last one not ready yet). \n\nA profile contains ligand id, its prediction and docking score (if available) against multiple receptors.",
     "title": "Virtual Screening With Conformal Prediction",
-    "version": "beta"
+    "version": "0.1.0-beta"
   },
   "host": "",
   "schemes": [
@@ -14,7 +14,7 @@
     "/receptors": {
       "get": {
         "tags": [
-          "Receptors"
+          "Receptor"
         ],
         "summary": "Get a list of available receptor models",
         "description": "Gives a list of receptor models available in the database. This is useful if the user is unsure which models are available in the database.",
@@ -26,18 +26,16 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Receptors"
-              }
+              "$ref": "#/definitions/Receptors"
             }
           }
         }
       }
     },
-    "/sample": {
+    "/ligands": {
       "get": {
         "tags": [
-          "Ligands"
+          "Ligand"
         ],
         "summary": "Get a sample of available ligands",
         "description": "Gives a sample (not random) of ligands available in the database. This is useful if the user wants to test API and unsure which ligands are available in the database.",
@@ -49,21 +47,19 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Ligands"
-              }
+              "$ref": "#/definitions/Ligands"
             }
           }
         }
       }
     },
-    "/profile/lId/{lid}": {
+    "/ligands/{lid}": {
       "get": {
         "tags": [
-          "Ligands"
+          "Profile"
         ],
         "summary": "Get ligand predictive profile by id",
-        "description": "Takes in ligand id and returns its profile including id, score, prediction, receptor(s) name and receptor(s) PDB code.",
+        "description": "Takes in ligand id and returns its profile including id, score, prediction, receptor(s) name and receptor(s) PDB code. ",
         "operationId": "profileByLigandId",
         "produces": [
           "application/json"
@@ -81,13 +77,11 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Profile"
-              }
+              "$ref": "#/definitions/Profile"
             }
           },
           "400": {
-            "description": "Invalid Ligand Name"
+            "description": "Invalid Ligand Id"
           },
           "404": {
             "description": "Ligand Profile Not Found"
@@ -98,13 +92,13 @@
         }
       }
     },
-    "/predict/lId/{lid}/rName/{rName}/rPdbCode/{rPdbCode}": {
+    "/ligands/{lid}/rName/{rName}/rPdbCode/{rPdbCode}": {
       "post": {
         "tags": [
-          "Ligands"
+          "Profile"
         ],
         "summary": "Make predictions for a new ligand",
-        "description": "Takes in ligand id, receptor name and receptor pdb Code and make prediction against the selected receptor model and save the prediction. This is useful if ligand prediction is not already available in the database. The operation downloads new molecule from zinc and predict it against ready made models",
+        "description": "Takes in ligand id, receptor name and receptor pdb Code and make prediction against the selected receptor model and save the prediction. This is useful if ligand prediction is not already available in the database. The operation downloads new molecule from zinc and predict it against ready made models.",
         "produces": [
           "application/json"
         ],
@@ -119,14 +113,14 @@
           {
             "name": "rName",
             "in": "path",
-            "description": "Receptor Name relevant to model against which profiling needed to be performed",
+            "description": "Receptor Name relevant to model against which profiling needed to be performed.",
             "required": true,
             "type": "string"
           },
           {
             "name": "rPdbCode",
             "in": "path",
-            "description": "Receptor PDB code relevant to model against which profiling needed to be performed",
+            "description": "Receptor PDB code relevant to model against which profiling needed to be performed.",
             "required": true,
             "type": "string"
           }
@@ -135,18 +129,16 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Prediction"
-              }
+              "$ref": "#/definitions/Prediction"
             }
           }
         }
       }
     },
-    "/dock/lId/{lid}/rName/{rName}/rPdbCode/{rPdbCode}": {
+    "/scoreByLid/{lid}/rName/{rName}/rPdbCode/{rPdbCode}": {
       "post": {
         "tags": [
-          "Ligands"
+          "Profile"
         ],
         "summary": "Docks a new ligand",
         "description": "Takes in ligand id, receptor name and receptor pdb Code and docks ligand against the selected receptor and save the score. This is useful if the docking score is not already available in the database. The operation downloads new molecule from zinc and docks it against ready made models.",
@@ -180,9 +172,7 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Score"
-              }
+              "$ref": "#/definitions/Score"
             }
           }
         }
@@ -192,21 +182,29 @@
   "definitions": {
     "Profile": {
       "type": "object",
+      "required": [
+        "l_id"
+      ],
       "properties": {
         "l_id": {
-          "type": "string"
+          "type": "string",
+          "example": "ZINC12954835"
         },
         "l_score": {
-          "type": "string"
+          "type": "string",
+          "example": "-4.9"
         },
         "l_prediction": {
-          "type": "string"
+          "type": "string",
+          "example": "BAD"
         },
         "r_name": {
-          "type": "string"
+          "type": "string",
+          "example": "hiv1_protease"
         },
         "r_pdbCode": {
-          "type": "string"
+          "type": "string",
+          "example": "1AJV"
         }
       }
     },
@@ -214,7 +212,8 @@
       "type": "object",
       "properties": {
         "l_prediction": {
-          "type": "string"
+          "type": "string",
+          "example": "BAD"
         }
       }
     },
@@ -222,7 +221,8 @@
       "type": "object",
       "properties": {
         "l_score": {
-          "type": "string"
+          "type": "string",
+          "example": "-3.9"
         }
       }
     },
@@ -230,15 +230,18 @@
       "type": "object",
       "properties": {
         "r_name": {
-          "type": "string"
+          "type": "string",
+          "example": "hiv1_protease"
         },
         "r_pdbCode": {
-          "type": "string"
+          "type": "string",
+          "example": "1AJV"
         }
       }
     },
     "Ligands": {
-      "type": "string"
+      "type": "string",
+      "example": "ZINC12954835"
     }
   }
 }
