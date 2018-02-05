@@ -61,6 +61,22 @@ object ProfileDAO {
     }
 
   }
+  
+  def receptorExistCheck(rName: String, rPdbCode: String): Int = {
+    DB.withConnection { implicit c =>
+      val results = SQL(
+        """
+          | SELECT EXISTS(SELECT 1 FROM MODELS 
+          | WHERE r_name LIKE {r_name}
+          | AND r_pdbCode LIKE {r_pdbCode} LIMIT 1) as EXIST;
+        """.stripMargin).on(
+          "r_name" -> rName,
+          "r_pdbCode" -> rPdbCode)
+        .as(SqlParser.scalar[Int].single)
+      results
+    }
+
+  }
 
   def saveLigandPredictionById(lId: String, lPrediction: String, rName: String, rPdbCode: String) = {
     DB.withConnection { implicit c =>

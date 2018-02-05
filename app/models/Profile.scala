@@ -52,6 +52,7 @@ object Profile {
   def findProfileByLigandId(lId: String): List[Profile] =
     ProfileDAO.profileByLigandId(lId)
 
+  def receptorExistCheck(rName: String, rPdbCode: String) = ProfileDAO.receptorExistCheck(rName, rPdbCode)  
   def computeAndSaveScore(lId: String, rName: String, rPdbCode: String): String =
     {
       //Row Existance test

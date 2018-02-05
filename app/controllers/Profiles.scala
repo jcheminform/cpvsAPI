@@ -4,6 +4,7 @@ import models.Profile
 import models.Profile._
 import play.api.libs.json.Json
 import play.api.mvc._
+import java.io.FileNotFoundException
 
 object Profiles extends Controller {
 
@@ -16,19 +17,38 @@ object Profiles extends Controller {
   }
 
   def dockAndSave(lId: String, rName: String, rPdbCode: String) = Action {
-    val profile = Profile.computeAndSaveScore(lId, rName, rPdbCode)
 
-    Ok(Json.obj("Score" -> profile))
+    try {
+      val receptorExist = Profile.receptorExistCheck(rName, rPdbCode)
+      if (receptorExist == 1) {
+        val profile = Profile.computeAndSaveScore(lId, rName, rPdbCode)
+        Ok(Json.obj("Score" -> profile))
+      } else {
+        BadRequest("Receptor Not found, make sure receptor name and id is correct")
+      }
+    } catch {
+      case fnf: FileNotFoundException => BadRequest("Ligand Not found, make sure ZINC ligand id is correct")
+    }
+
   }
-  
-  def predict(lId: String, rName: String, rPdbCode: String) = Action {
-    val profile = Profile.predictAndSave(lId, rName, rPdbCode)
 
-    Ok(Json.obj("Prediction" -> profile))
+  def predict(lId: String, rName: String, rPdbCode: String) = Action {
+    try {
+      val receptorExist = Profile.receptorExistCheck(rName, rPdbCode)
+      if (receptorExist == 1) {
+      val profile = Profile.predictAndSave(lId, rName, rPdbCode)
+      Ok(Json.obj("Prediction" -> profile))
+      }
+      else {
+        BadRequest("Receptor Not found, make sure receptor name and id is correct")
+      }
+    } catch {
+      case fnf: FileNotFoundException => BadRequest("Ligand Not found, make sure ZINC ligand id is correct")
+    }
   }
 
   def welcome() = Action {
-    Redirect(url = "/assets/docs/index.html") 
+    Redirect(url = "/assets/docs/index.html")
   }
 
 }
