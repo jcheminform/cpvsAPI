@@ -3,7 +3,7 @@
   "info": {
     "description": "This is API documentation for [Conformal Prediction based Virtual Screening](https://github.com/laeeq80/spark-cpvs-vina). The API is responsible for three web services i.e. providing ready-made prediction profiles for compounds, real-time docking for small number of molecules and a predictive on-demand docking service for large-scale compound profile generation (last one not ready yet). \n\nA profile contains ligand id, its prediction and docking score (if available) against multiple receptors.",
     "title": "Virtual Screening With Conformal Prediction",
-    "version": "0.1.0-beta"
+    "version": "0.0.2-beta"
   },
   "host": "",
   "schemes": [
@@ -26,7 +26,10 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "$ref": "#/definitions/Receptors"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Receptors"
+              }
             }
           }
         }
@@ -47,7 +50,10 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "$ref": "#/definitions/Ligands"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Ligands"
+              }
             }
           }
         }
@@ -77,7 +83,10 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "$ref": "#/definitions/Profile"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Profile"
+              }
             }
           },
           "400": {
@@ -129,7 +138,10 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "$ref": "#/definitions/Prediction"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Prediction"
+              }
             }
           }
         }
@@ -172,7 +184,10 @@
           "200": {
             "description": "Successful Operation",
             "schema": {
-              "$ref": "#/definitions/Score"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Score"
+              }
             }
           }
         }
