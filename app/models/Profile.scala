@@ -1,30 +1,23 @@
 package models
 
-import java.io.ByteArrayInputStream
 import java.io.InputStream
-import java.io.ObjectInputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.sql.DriverManager
-import java.lang.Long
 
 import scala.io.Source
 import scala.language.postfixOps
 
-import org.apache.spark.mllib.regression.LabeledPoint
-import org.jsoup.Jsoup
 import org.openscience.cdk.interfaces.IAtomContainer
 
 import models.dao.ProfileDAO
-import controllers.Global.{ svmModel, oldSig2ID }
 import play.api.Logger
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.functional.syntax.unlift
 import play.api.libs.json.JsPath
 import play.api.libs.json.Writes
-import se.uu.farmbio.vs.{ MLlibSVM, ConformerPipeline, PosePipeline, SGUtils_Serial }
-import se.uu.it.cp.InductiveClassifier
-import java.io.PrintWriter
+import se.uu.farmbio.vs.SGUtils_Serial
+import se.uu.farmbio.vs.ConformerPipeline
+import controllers.Global.{oldSig2ID, svmModel}
 
 object Profile {
   //Need to be Updated
@@ -68,19 +61,10 @@ object Profile {
     val iAtomSeq: Seq[IAtomContainer] = smiToSdfLigandArray.flatMap { smiToSdfLigand =>
       ConformerPipeline.sdfStringToIAtomContainer(smiToSdfLigand)
     }
-    
+
     //Array of IAtomContainers
     val iAtomArray = iAtomSeq.toArray
-    println("################# SDF IAtomContainer is ##############" + "\n" )
-    iAtomArray.foreach(println(_))
-    
-    val iAtomArraySmiles = smilesArray.map { smiles =>
-      ConformerPipeline.smilesToIAtomContainer(smiles)
-    }
-    
-    println("################# SmilesIAtomContainer is ##############" + "\n" )
-    iAtomArraySmiles.foreach(println(_))
-    
+
     //Unit sent as carry, later we can add any type required
     val iAtomArrayWithFakeCarry = iAtomArray.map { case x => (Unit, x) }
 
@@ -89,9 +73,7 @@ object Profile {
 
     //Predict New molecule(s) , svmModel comes from Global.scala loaded once on project startup
     val modelPredictions = newSigns.map { case (sdfMols, features) => (features, svmModel.predict(features.toArray, 0.5)) }
-
     
-
     //Actual prediction
     val predictions: Array[String] = modelPredictions.map {
       case (sdfmol, predSet) =>
