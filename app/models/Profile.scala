@@ -68,14 +68,19 @@ object Profile {
     val iAtomSeq: Seq[IAtomContainer] = smiToSdfLigandArray.flatMap { smiToSdfLigand =>
       ConformerPipeline.sdfStringToIAtomContainer(smiToSdfLigand)
     }
-
+    
     //Array of IAtomContainers
     val iAtomArray = iAtomSeq.toArray
-
-    /*val iAtomArray = smilesArray.map { smiles =>
+    println("################# SDF IAtomContainer is ##############" + "\n" )
+    iAtomArray.foreach(println(_))
+    
+    val iAtomArraySmiles = smilesArray.map { smiles =>
       ConformerPipeline.smilesToIAtomContainer(smiles)
-    }*/
-
+    }
+    
+    println("################# SmilesIAtomContainer is ##############" + "\n" )
+    iAtomArraySmiles.foreach(println(_))
+    
     //Unit sent as carry, later we can add any type required
     val iAtomArrayWithFakeCarry = iAtomArray.map { case x => (Unit, x) }
 
@@ -85,7 +90,7 @@ object Profile {
     //Predict New molecule(s) , svmModel comes from Global.scala loaded once on project startup
     val modelPredictions = newSigns.map { case (sdfMols, features) => (features, svmModel.predict(features.toArray, 0.5)) }
 
-    modelPredictions.foreach(println(_))
+    
 
     //Actual prediction
     val predictions: Array[String] = modelPredictions.map {
