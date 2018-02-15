@@ -1,9 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "This is API documentation for Ligand Docking Profile as a service based on [Conformal Prediction based Virtual Screening](https://github.com/laeeq80/spark-cpvs-vina). The API is responsible for three web services i.e. providing ready-made prediction profiles for compounds, real-time docking for small number of molecules and a predictive on-demand docking service for large-scale compound profile generation (last one not ready yet). \n\nA profile contains ligand id, its prediction and docking score (if available) against multiple receptors.",
+    "description": "This is API documentation for [Conformal Prediction based Virtual Screening](https://github.com/laeeq80/spark-cpvs-vina). The API is responsible for two web services i.e. providing prediction profiles for compounds, real-time docking for small number of molecules. \n\nA profile contains ligand id, its prediction and docking score against multiple receptors.",
     "title": "Docking Profile As A Service (DPAAS) API Documentation",
-    "version": "0.0.3-beta"
+    "version": "0.0.2-beta"
   },
   "host": "",
   "schemes": [
@@ -11,74 +11,20 @@
   ],
   "basePath": "/",
   "paths": {
-    "/receptors": {
-      "get": {
-        "tags": [
-          "Receptor"
-        ],
-        "summary": "Get a list of available receptor models",
-        "description": "Gives a list of receptor models available in the database. This is useful if the user is unsure which models are available in the database.",
-        "operationId": "receptorList",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Receptors"
-              }
-            }
-          },
-          "503": {
-            "description": "Docking Profile Service Not available"
-          }
-        }
-      }
-    },
-    "/ligands": {
-      "get": {
-        "tags": [
-          "Ligand"
-        ],
-        "summary": "Get a sample of available ligands",
-        "description": "Gives a sample (not random) of ligands available in the database. This is useful if the user wants to test API and unsure which ligands are available in the database.",
-        "operationId": "sampleLigands",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Ligands"
-              }
-            }
-          },
-          "503": {
-            "description": "Docking Profile Service Not available"
-          }
-        }
-      }
-    },
-    "/ligands/{lid}": {
+    "/predictions/{smiles}": {
       "get": {
         "tags": [
           "Profile"
         ],
-        "summary": "Get ligand predictive profile by id",
-        "description": "Takes in ligand id and returns its profile including id, score, prediction, receptor(s) name and receptor(s) PDB code. ",
-        "operationId": "profileByLigandId",
+        "summary": "Get ligand predictive profile by smiles",
+        "description": "Takes in smiles and returns its profile predictions prediction, receptor(s) name and receptor(s) PDB code. ",
+        "operationId": "profileBySmiles",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "lid",
+            "name": "smiles",
             "in": "path",
             "type": "string",
             "required": true,
@@ -91,12 +37,12 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Profile"
+                "$ref": "#/definitions/Predictions"
               }
             }
           },
           "400": {
-            "description": "Invalid Ligand Id"
+            "description": "Invalid Smiles"
           },
           "404": {
             "description": "Ligand Profile Not Found"
@@ -107,84 +53,21 @@
         }
       }
     },
-    "/ligands/{lid}/rName/{rName}/rPdbCode/{rPdbCode}": {
+    "/dockings/{smiles}": {
       "post": {
         "tags": [
           "Profile"
         ],
-        "summary": "Make predictions for a new ligand",
-        "description": "Takes in ligand id, receptor name and receptor pdb Code and make prediction against the selected receptor model and save the prediction. This is useful if ligand prediction is not already available in the database. The operation downloads new molecule from zinc and predict it against ready made models.",
+        "summary": "Make docking profile by smiles",
+        "description": "Takes in a single smiles, and make docking against the receptor and save the docking score.",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "lid",
+            "name": "smiles",
             "in": "path",
-            "description": "Ligand id that need to be considered for profiling",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "rName",
-            "in": "path",
-            "description": "Receptor Name relevant to model against which profiling needed to be performed.",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "rPdbCode",
-            "in": "path",
-            "description": "Receptor PDB code relevant to model against which profiling needed to be performed.",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Prediction"
-              }
-            }
-          },
-          "400": {
-            "description": "Incorrect ligand id or receptor name or receptor pdbCode"
-          }
-        }
-      }
-    },
-    "/scoreByLid/{lid}/rName/{rName}/rPdbCode/{rPdbCode}": {
-      "post": {
-        "tags": [
-          "Profile"
-        ],
-        "summary": "Docks a new ligand",
-        "description": "Takes in ligand id, receptor name and receptor pdb Code and docks ligand against the selected receptor and save the score. This is useful if the docking score is not already available in the database. The operation downloads new molecule from zinc and docks it against ready made models.",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "lid",
-            "in": "path",
-            "description": "Ligand id that need to be considered for docking",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "rName",
-            "in": "path",
-            "description": "Receptor Name against which docking needed to be performed",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "rPdbCode",
-            "in": "path",
-            "description": "Receptor PDB code against which docking needed to be performed",
+            "description": "Smiles that need to be considered for docking",
             "required": true,
             "type": "string"
           }
@@ -200,50 +83,13 @@
             }
           },
           "400": {
-            "description": "Incorrect ligand id or receptor name or receptor pdbCode"
+            "description": "Incorrect Smiles"
           }
         }
       }
     }
   },
   "definitions": {
-    "Profile": {
-      "type": "object",
-      "required": [
-        "l_id"
-      ],
-      "properties": {
-        "l_id": {
-          "type": "string",
-          "example": "ZINC12954835"
-        },
-        "l_score": {
-          "type": "string",
-          "example": "-4.5"
-        },
-        "l_prediction": {
-          "type": "string",
-          "example": "BAD"
-        },
-        "r_name": {
-          "type": "string",
-          "example": "hiv1_protease"
-        },
-        "r_pdbCode": {
-          "type": "string",
-          "example": "1AJV"
-        }
-      }
-    },
-    "Prediction": {
-      "type": "object",
-      "properties": {
-        "l_prediction": {
-          "type": "string",
-          "example": "BAD"
-        }
-      }
-    },
     "Score": {
       "type": "object",
       "properties": {
@@ -253,9 +99,16 @@
         }
       }
     },
-    "Receptors": {
+    "Predictions": {
       "type": "object",
+      "required": [
+        "smiles"
+      ],
       "properties": {
+        "l_prediction": {
+          "type": "string",
+          "example": "BAD"
+        },
         "r_name": {
           "type": "string",
           "example": "hiv1_protease"
@@ -265,10 +118,6 @@
           "example": "1AJV"
         }
       }
-    },
-    "Ligands": {
-      "type": "string",
-      "example": "ZINC12954835"
     }
   }
 }

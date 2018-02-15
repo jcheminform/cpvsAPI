@@ -4,7 +4,7 @@
 
 # API Endpoints
 GET    /predictions/:smiles											  controllers.Profiles.predictionByLigandId(smiles)
-
+POST   /dockings/:smiles											  controllers.Profiles.dockingByLigandId(smiles)	
 		
 #GET    /ligands/:lId                                             controllers.Profiles.profileByLigandId(lId)
 #POST   /ligands/:lId/rName/:rName/rPdbCode/:rPdbCode   controllers.Profiles.predict(lId, rName, rPdbCode)		

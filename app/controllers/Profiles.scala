@@ -9,13 +9,13 @@ import play.api.mvc._
 import java.io.FileNotFoundException
 
 object Profiles extends Controller {
-  
-  def predictionByLigandId(smiles : String) = Action {
+
+  def predictionByLigandId(smiles: String) = Action {
     val SmilesArray = smiles.split(",")
     val profilePredictions = Profile.predictProfile(SmilesArray)
     Ok(Json.obj("results" -> profilePredictions))
   }
-/*
+  /*
   def profileByLigandId(lId: String) = Action {
     val allProfiles = Profile.findProfileByLigandId(lId)
     if ((allProfiles == null) || (allProfiles.length < 1)) {
