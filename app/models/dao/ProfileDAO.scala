@@ -2,6 +2,7 @@ package models.dao
 
 import anorm._
 import models.Profile
+import models.Prediction
 import play.api.db.DB
 import play.api.Play.current
 import java.sql.DriverManager
@@ -11,7 +12,6 @@ import java.io.ByteArrayInputStream
 import se.uu.farmbio.vs.MLlibSVM
 import org.apache.spark.mllib.regression.LabeledPoint
 import play.api.Logger
-
 
 object ProfileDAO {
 
@@ -61,7 +61,7 @@ object ProfileDAO {
     }
 
   }
-  
+
   def receptorExistCheck(rName: String, rPdbCode: String): Int = {
     DB.withConnection { implicit c =>
       val results = SQL(
@@ -117,28 +117,42 @@ object ProfileDAO {
     }
 
   }
-
+/*
   def loadModel(rName: String, rPdbCode: String): InductiveClassifier[MLlibSVM, LabeledPoint] = {
-  DB.withConnection { implicit c =>
-    val result = SQL(
-      """
+    DB.withConnection { implicit c =>
+      val result = SQL(
+        """
         | SELECT r_model
         | FROM MODELS
         | WHERE r_name={r_name}
         | AND r_PdbCode={r_PdbCode}
         | LIMIT 1 
       """.stripMargin)
-      .on("r_name" -> rName,
+        .on(
+          "r_name" -> rName,
           "r_PdbCode" -> rPdbCode)
-      .as(SqlParser.byteArray("r_model").single) 
-    Logger.info(s"result ${result.getClass} => $result")
-    deserialize[InductiveClassifier[MLlibSVM, LabeledPoint]](result)
-  }
-}
+        .as(SqlParser.byteArray("r_model").single)
+      Logger.info(s"result ${result.getClass} => $result")
+      deserialize[InductiveClassifier[MLlibSVM, LabeledPoint]](result)
+    }
+  }*/
   
+  def loadModel_new(): InductiveClassifier[MLlibSVM, LabeledPoint] = {
+    DB.withConnection { implicit c =>
+      val result = SQL(
+        """
+        | SELECT r_model
+        | FROM MODELS
+      """.stripMargin)
+        .as(SqlParser.byteArray("r_model").single)
+      Logger.info(s"result ${result.getClass} => $result")
+      deserialize[InductiveClassifier[MLlibSVM, LabeledPoint]](result)
+    }
+  }
+
   def deserialize[T](byteArray: Array[Byte]): T = {
-  val ois = new ObjectInputStream(new ByteArrayInputStream(byteArray))
-  ois.readObject().asInstanceOf[T]
-}
+    val ois = new ObjectInputStream(new ByteArrayInputStream(byteArray))
+    ois.readObject().asInstanceOf[T]
+  }
 
 }

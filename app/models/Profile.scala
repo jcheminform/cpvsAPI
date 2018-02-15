@@ -16,6 +16,7 @@ import org.jsoup.Jsoup
 import org.openscience.cdk.interfaces.IAtomContainer
 
 import models.dao.ProfileDAO
+import controllers.Global.{ svmModel, oldSig2ID }
 import play.api.Logger
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.functional.syntax.unlift
@@ -31,16 +32,8 @@ object Profile {
   val VINA_CONF_URL = "http://pele.farmbio.uu.se/cpvs-vina/conf.txt"
   val VINA_HOME = "http://pele.farmbio.uu.se/cpvs-vina/"
   val OBABEL_HOME_URL = "http://pele.farmbio.uu.se/cpvs-vina/"
-
-  //Use local receptors file if set otherwise complain
-  val resourcesHome = if (System.getenv("RESOURCES_HOME") != null) {
-    Logger.info("JOB_INFO: using local resources for reading receptors: " + System.getenv("RESOURCES_HOME"))
-    System.getenv("RESOURCES_HOME")
-  } else {
-    Logger.error("JOB_ERROR: RESOURCES_HOME is not set")
-    System.exit(1)
-    "Path Not set"
-  }
+  val receptorName = System.getenv("RECEPTOR_NAME")
+  val receptorPdbCode = System.getenv("RECEPTOR_PDBCODE")
 
   implicit val ProfileWrites: Writes[Profile] = (
     (JsPath \ "l_id").write[String] and
@@ -49,10 +42,69 @@ object Profile {
     (JsPath \ "r_name").write[String] and
     (JsPath \ "r_pdbCode").write[String])(unlift(Profile.unapply))
 
+  implicit val PredictionWrites: Writes[Prediction] = (
+    (JsPath \ "l_prediction").write[String] and
+    (JsPath \ "r_name").write[String] and
+    (JsPath \ "r_pdbCode").write[String])(unlift(Prediction.unapply))
+
+  def predictProfile(smilesArray: Array[String]): Array[Prediction] = {
+    //Use local obabel if OBABEL_HOME is set
+    val obabelPath = if (System.getenv("OBABEL_HOME") != null) {
+      Logger.info("JOB_INFO: using local obabel: " + System.getenv("OBABEL_HOME"))
+      System.getenv("OBABEL_HOME")
+    } else {
+      Logger.info("JOB_INFO: using remote obabel: " + OBABEL_HOME_URL)
+      OBABEL_HOME_URL
+    }
+
+    //Convert smi ligand to sdf format using obabel
+    val smiToSdfLigandArray: Array[String] = smilesArray.map { smiles =>
+      ConformerPipeline.pipeString(
+        smiles,
+        List(obabelPath, "-i", "smi", "-o", "sdf", "--gen3d"))
+    }
+
+    //Getting Seq of IAtomContainer
+    val iAtomSeq: Seq[IAtomContainer] = smiToSdfLigandArray.flatMap { smiToSdfLigand =>
+      ConformerPipeline.sdfStringToIAtomContainer(smiToSdfLigand)
+    }
+
+    //Array of IAtomContainers
+    val iAtomArray = iAtomSeq.toArray
+
+    /*val iAtomArray = smilesArray.map { smiles =>
+      ConformerPipeline.smilesToIAtomContainer(smiles)
+    }*/
+
+    //Unit sent as carry, later we can add any type required
+    val iAtomArrayWithFakeCarry = iAtomArray.map { case x => (Unit, x) }
+
+    //Generate Signature(in vector form) of New Molecule(s)
+    val newSigns = SGUtils_Serial.atoms2LP_carryData(iAtomArrayWithFakeCarry, oldSig2ID, 1, 3)
+
+    //Predict New molecule(s) , svmModel comes from Global.scala loaded once on project startup
+    val modelPredictions = newSigns.map { case (sdfMols, features) => (features, svmModel.predict(features.toArray, 0.5)) }
+
+    modelPredictions.foreach(println(_))
+
+    //Actual prediction
+    val predictions: Array[String] = modelPredictions.map {
+      case (sdfmol, predSet) =>
+        val lPrediction = if (predSet == Set(0.0)) "BAD"
+        else if (predSet == Set(1.0)) "GOOD"
+        else "UNKNOWN"
+        lPrediction
+    }
+
+    val result = predictions.map { actualPrediction => Prediction(actualPrediction, receptorName, receptorPdbCode) }
+    result
+  }
+
   def findProfileByLigandId(lId: String): List[Profile] =
     ProfileDAO.profileByLigandId(lId)
 
-  def receptorExistCheck(rName: String, rPdbCode: String) = ProfileDAO.receptorExistCheck(rName, rPdbCode)  
+  def receptorExistCheck(rName: String, rPdbCode: String) = ProfileDAO.receptorExistCheck(rName, rPdbCode)
+  /*
   def computeAndSaveScore(lId: String, rName: String, rPdbCode: String): String =
     {
       //Row Existance test
@@ -79,7 +131,7 @@ object Profile {
           VINA_CONF_URL
         }
 
-        //Use local vina conf.txt file if VINA_CONF is set
+        //Use local obabel if OBABEL_HOME is set
         val obabelPath = if (System.getenv("OBABEL_HOME") != null) {
           Logger.info("JOB_INFO: using local obabel: " + System.getenv("OBABEL_HOME"))
           System.getenv("OBABEL_HOME")
@@ -95,10 +147,10 @@ object Profile {
 
         //Get link and download the conformer using link
         val ligand = downloadFile(getDownloadLink(lId), lId)
-      
+
         //Setting title
-        val lWithTitle : String = lId + ligand
-        
+        val lWithTitle: String = lId + ligand
+
         //Compute Score using docking
         //Convert sdf ligand to pdbqt format using obabel
         val pdbqtLigand: String = "MODEL\n" + ConformerPipeline.pipeString(
@@ -115,7 +167,7 @@ object Profile {
         val pdbqtToSdfLigand = ConformerPipeline.pipeString(
           dockedpdbqt,
           List(obabelPath, "-i", "pdbqt", "-o", "sdf"))
-   
+
         //Cleaning Molecule after docking and getting score
         val lScore = PosePipeline.parseScore(ConformerPipeline.cleanPoses(pdbqtToSdfLigand, false).trim).toString
 
@@ -153,9 +205,9 @@ object Profile {
 
       //Load Model
       //val svmModel = ProfileDAO.getModelByReceptorNameAndPdbCode(rName, rPdbCode)
-      val svmModel = ProfileDAO.loadModel(rName,rPdbCode)
+      val svmModel = ProfileDAO.loadModel(rName, rPdbCode)
       //val svmModel = loadModel(rName,rPdbCode)
-      
+
       //Predict New molecule(s)
       val predictions = newSigns.map { case (sdfMols, features) => (features, svmModel.predict(features.toArray, 0.5)) }
 
@@ -173,7 +225,7 @@ object Profile {
       result = prediction(0).toString
     }
     result
-  }
+  }*/
 
   private def downloadFile(urlLink: String, lId: String): String = {
     val url = new URL(urlLink)
@@ -200,3 +252,4 @@ object Profile {
 }
 
 case class Profile(l_id: String, l_score: String, l_prediction: String, r_name: String, r_pdbCode: String)
+case class Prediction(l_prediction: String, r_name: String, r_pdbCode: String)
