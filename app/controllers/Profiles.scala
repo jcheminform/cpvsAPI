@@ -1,9 +1,9 @@
 package controllers
 
-import models.Profile
-import models.Profile._
 import models.Prediction
 import models.Prediction._
+import models.Score
+import models.Score._
 import play.api.libs.json.Json
 import play.api.mvc._
 import java.io.FileNotFoundException
@@ -12,9 +12,15 @@ object Profiles extends Controller {
 
   def predictionByLigandId(smiles: String) = Action {
     val SmilesArray = smiles.split(",")
-    val profilePredictions = Profile.predictProfile(SmilesArray)
-    Ok(Json.obj("results" -> profilePredictions))
+    val profilePredictions = Prediction.predictProfile(SmilesArray)
+    Ok(Json.obj("predictions" -> profilePredictions))
   }
+ 
+  def dockingByLigandId(smiles: String) = Action {
+    val dockingScore = Score.dockProfile(smiles)
+    Ok(Json.obj("Score" -> dockingScore )) 
+  }
+  
   /*
   def profileByLigandId(lId: String) = Action {
     val allProfiles = Profile.findProfileByLigandId(lId)

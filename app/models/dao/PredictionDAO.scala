@@ -1,8 +1,8 @@
 package models.dao
 
 import anorm._
-import models.Profile
 import models.Prediction
+import models.Score
 import play.api.db.DB
 import play.api.Play.current
 import java.sql.DriverManager
@@ -13,44 +13,13 @@ import se.uu.farmbio.vs.MLlibSVM
 import org.apache.spark.mllib.regression.LabeledPoint
 import play.api.Logger
 
-object ProfileDAO {
-
-  def saveLigandScoreById(lId: String, lScore: String, rName: String, rPdbCode: String) = {
-    DB.withConnection { implicit c =>
-      SQL(
-        """
-          | INSERT IGNORE INTO DOCKED_LIGANDS (l_id, l_score, r_name, r_pdbCode)
-          | VALUES
-          |   ({l_id}, {l_score}, {r_name}, {r_pdbCode});
-        """.stripMargin).on(
-          "l_id" -> lId,
-          "l_score" -> lScore,
-          "r_name" -> rName,
-          "r_pdbCode" -> rPdbCode).executeInsert()
-    }
-  }
+object PredictionDAO {
 
   def predictionExistCheck(lId: String, rPdbCode: String): Int = {
     DB.withConnection { implicit c =>
       val results = SQL(
         """
           | SELECT EXISTS(SELECT 1 FROM PREDICTED_LIGANDS 
-          | WHERE l_id LIKE {l_id}
-          | AND r_pdbCode LIKE {r_pdbCode} LIMIT 1) as EXIST;
-        """.stripMargin).on(
-          "l_id" -> lId,
-          "r_pdbCode" -> rPdbCode)
-        .as(SqlParser.scalar[Int].single)
-      results
-    }
-
-  }
-
-  def scoreExistCheck(lId: String, rPdbCode: String): Int = {
-    DB.withConnection { implicit c =>
-      val results = SQL(
-        """
-          | SELECT EXISTS(SELECT 1 FROM DOCKED_LIGANDS 
           | WHERE l_id LIKE {l_id}
           | AND r_pdbCode LIKE {r_pdbCode} LIMIT 1) as EXIST;
         """.stripMargin).on(
@@ -93,6 +62,7 @@ object ProfileDAO {
     }
   }
 
+  /*
   def profileByLigandId(lId: String): List[Profile] = {
     DB.withConnection { implicit c =>
       val results = SQL(
@@ -116,43 +86,6 @@ object ProfileDAO {
       }.force.toList
     }
 
-  }
-/*
-  def loadModel(rName: String, rPdbCode: String): InductiveClassifier[MLlibSVM, LabeledPoint] = {
-    DB.withConnection { implicit c =>
-      val result = SQL(
-        """
-        | SELECT r_model
-        | FROM MODELS
-        | WHERE r_name={r_name}
-        | AND r_PdbCode={r_PdbCode}
-        | LIMIT 1 
-      """.stripMargin)
-        .on(
-          "r_name" -> rName,
-          "r_PdbCode" -> rPdbCode)
-        .as(SqlParser.byteArray("r_model").single)
-      Logger.info(s"result ${result.getClass} => $result")
-      deserialize[InductiveClassifier[MLlibSVM, LabeledPoint]](result)
-    }
   }*/
-  
-  def loadModel_new(): InductiveClassifier[MLlibSVM, LabeledPoint] = {
-    DB.withConnection { implicit c =>
-      val result = SQL(
-        """
-        | SELECT r_model
-        | FROM MODELS
-      """.stripMargin)
-        .as(SqlParser.byteArray("r_model").single)
-      Logger.info(s"result ${result.getClass} => $result")
-      deserialize[InductiveClassifier[MLlibSVM, LabeledPoint]](result)
-    }
-  }
-
-  def deserialize[T](byteArray: Array[Byte]): T = {
-    val ois = new ObjectInputStream(new ByteArrayInputStream(byteArray))
-    ois.readObject().asInstanceOf[T]
-  }
 
 }
