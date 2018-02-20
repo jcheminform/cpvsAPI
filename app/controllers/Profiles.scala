@@ -8,6 +8,11 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import java.io.FileNotFoundException
 
+import org.openscience.cdk.DefaultChemObjectBuilder
+import org.openscience.cdk.interfaces.IAtomContainer
+import org.openscience.cdk.smiles.SmilesParser
+import org.openscience.cdk.exception.InvalidSmilesException
+
 object Profiles extends Controller {
 
   def predictionByLigandId(smiles: String) = Action {
@@ -15,12 +20,23 @@ object Profiles extends Controller {
     val profilePredictions = Prediction.predictProfile(SmilesArray)
     Ok(Json.obj("predictions" -> profilePredictions))
   }
- 
+
   def dockingByLigandId(smiles: String) = Action {
-    val dockingScore = Score.dockProfile(smiles)
-    Ok(Json.obj("Score" -> dockingScore )) 
+    try {
+      //For getting exception if smiles is invalid
+      val smilesParser = new SmilesParser(DefaultChemObjectBuilder.getInstance())
+      val molecule = smilesParser.parseSmiles(smiles)
+      
+      //For getting docking score
+      val dockingScore = Score.dockProfile(smiles)
+      Ok(Json.obj("Score" -> dockingScore))
+    } catch {
+      case exec: InvalidSmilesException =>
+        println("\n ###########  An invalid smile with following message  ########## " + "\n" + exec.getStackTraceString)
+        BadRequest("Invalid Smiles")
+    }
   }
-  
+
   /*
   def profileByLigandId(lId: String) = Action {
     val allProfiles = Profile.findProfileByLigandId(lId)

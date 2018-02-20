@@ -25,6 +25,13 @@ import org.openscience.cdk.io.MDLV2000Reader
 import org.openscience.cdk.tools.manipulator.ChemFileManipulator
 import org.openscience.cdk.silent.ChemFile
 
+import org.openscience.cdk.DefaultChemObjectBuilder
+import org.openscience.cdk.interfaces.IAtomContainer
+import org.openscience.cdk.smiles.SmilesParser
+import org.openscience.cdk.exception.InvalidSmilesException
+
+import java.io.FileNotFoundException
+
 object Score {
   //Need to be Updated
 
@@ -47,6 +54,7 @@ object Score {
 
   def dockProfile(smiles: String): Score =
     {
+
       //Convert smi to inchiKey
       val smiToInchiKey =
         ConformerPipeline.pipeString(
@@ -118,6 +126,7 @@ object Score {
         result = Score(receptorPdbCode, smiToInchiKey, lScore)
       }
       result
+
     }
 
   /*
