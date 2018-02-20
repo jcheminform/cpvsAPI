@@ -1,9 +1,11 @@
 package models.dao
 
-import anorm._
+import anorm.SQL
+import anorm.SqlParser
+import anorm.sqlToSimple
 import models.Score
-import play.api.db.DB
 import play.api.Play.current
+import play.api.db.DB
 
 object ScoreDAO {
   
@@ -20,7 +22,6 @@ object ScoreDAO {
         .as(SqlParser.scalar[Int].single)
       results
     }
-
   }
   
   def scoreByLigandIdAndPdbCode(lId: String, receptorPdbCode: String): Score = {
@@ -40,9 +41,7 @@ object ScoreDAO {
           row[String]("l_id"),
           row[String]("l_score"))
       }.force.last
-
     }
-
   }
   
   def saveLigandScoreById(rPdbCode: String, lId: String, lScore: String) = {
@@ -58,5 +57,4 @@ object ScoreDAO {
           "l_score" -> lScore).executeInsert()
     }
   }
-  
 }
