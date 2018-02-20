@@ -16,9 +16,27 @@ import org.openscience.cdk.exception.InvalidSmilesException
 object Profiles extends Controller {
 
   def predictionByLigandId(smiles: String) = Action {
-    val SmilesArray = smiles.split(",")
-    val profilePredictions = Prediction.predictProfile(SmilesArray)
-    Ok(Json.obj("predictions" -> profilePredictions))
+    val SmilesArray = smiles.trim.split("££££")
+    var counter = 1
+    try {
+      
+      val smilesParser = new SmilesParser(DefaultChemObjectBuilder.getInstance())
+      
+      //For getting exception if smiles is invalid
+      //Although we can use map, this is fastest way to map array
+      while (counter <= SmilesArray.length) {
+        smilesParser.parseSmiles(SmilesArray(counter-1))
+        counter += 1
+      }
+
+      val profilePredictions = Prediction.predictProfile(SmilesArray)
+      Ok(Json.obj("predictions" -> profilePredictions))
+    } catch {
+      case exec: InvalidSmilesException =>
+        println("\n ###########  An invalid smile with following message  ########## " + "\n" + exec.getStackTraceString)
+        BadRequest("Invalid Smiles at line " + counter)
+    }
+
   }
 
   def dockingByLigandId(smiles: String) = Action {
@@ -26,7 +44,7 @@ object Profiles extends Controller {
       //For getting exception if smiles is invalid
       val smilesParser = new SmilesParser(DefaultChemObjectBuilder.getInstance())
       val molecule = smilesParser.parseSmiles(smiles)
-      
+
       //For getting docking score
       val dockingScore = Score.dockProfile(smiles)
       Ok(Json.obj("Score" -> dockingScore))
