@@ -11,11 +11,13 @@ import models.Score.ScoreWrites
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.Controller
+import scala.io.Source
 
 object Profiles extends Controller {
 
   def predictionByLigandId(smiles: String) = Action {
-    val SmilesArray = smiles.trim.split("££££")
+    val SmilesArray = smiles.split("\n").map(_.trim).filter(_ != "")
+    SmilesArray.foreach(println(_))
     var counter = 1
     try {
 

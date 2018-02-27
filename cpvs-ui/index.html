@@ -35,33 +35,36 @@
         
         <p>
          Initially the service is available for compound profiles against 10 receptor models. Each model was trained using 2.2 million compounds from SureChEMBL molecule library. 
-         The models were created using our previous strategy given in paper <b>"Efficient iterative Virtual Screening with 
+         The models were created using our modelling strategy given in paper <b>"Efficient iterative Virtual Screening with 
          Apache Spark and Conformal Prediction"</b> accepted in Journal of Cheminformatics.
        
         <p>
         <b>Structure Based Docking Profile Predictions based on CPVS</b><br>
         Laeeq Ahmed, Staffan Arvidsson, Arvid Berg, Jonathan Alvarsson, Wesley Schaal and Ola Spjuth<br>
         [<i>In Progress</i>]
-        </div>
+    </div>
     
-  
     <div class="panel-body" style="float:right; padding: 10px; font-family: sans-serif;">
-        <form method="GET" action="http://localhost:9000/" enctype="multipart/form-data">
-            
-                <div class="form-group">
-                    <textarea class="form-control" style="width: 1000px; height: 220px; border-radius: 5px; resize: vertical; " id="paste" name="paste" placeholder="SMILES here, one identifier per Line"></textarea>
-                </div>
-                <button class="btn btn-default" type="submit">
-                        Search Profile
-                </button>
+        <form method="GET" action="http://localhost:9000/predictions/" name="smilesForm" target="hidden-iframe">
+            <div class="form-group">
+                <textarea class="text" name="smiles" style="width: 1000px; height: 220px; border-radius: 5px; resize: vertical; " placeholder="SMILES here, one identifier per Line"></textarea>
+            </div>
+            <input type="submit" value="Search Profile">
         </form>
     </div>
-   
-    
-            
-                
 
-       
+    <div>   
+        <iframe name="hidden-iframe" src="http://localhost:9000/predictions/" style="width:1000;height:200;border:0;border:none;"></iframe>
+        <p id="demo"></p> 
+        <script>
+            var data = JSON.parse($("#hidden-iframe").contents().text());
+            var obj = JSON.parse('{ "name":"John", "age":30, "city":"New York"}');
+            document.getElementById("demo").innerHTML = data.r_pdbCode + ", " + data.l_id;
+        </script>
+    </div>
+
+
+
     <div id="error_label" style="color:red"></div>
     <img id="image" style="display: block; margin: auto;"></img>
 </body>

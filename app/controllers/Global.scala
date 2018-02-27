@@ -1,8 +1,5 @@
 package controllers
 
-import java.io.ByteArrayInputStream
-import java.io.ObjectInputStream
-
 import org.apache.spark.mllib.regression.LabeledPoint
 
 import anorm.SQL
@@ -14,8 +11,9 @@ import play.api.GlobalSettings
 import play.api.Logger
 import play.api.Play.current
 import play.api.db.DB
-import se.uu.farmbio.vs.{MLlibSVM, SGUtils_Serial}
+import se.uu.farmbio.vs.{ MLlibSVM, SGUtils_Serial }
 import se.uu.it.cp.InductiveClassifier
+import models.dao.GlobalDAO
 
 object Global extends GlobalSettings {
   //Receptor Env. Variables
@@ -48,7 +46,7 @@ object Global extends GlobalSettings {
     Logger.info("********* WELCOME TO CPVS **********")
     //Loading SvmModel
     println("\n  #### Initializing model ####")
-    svmModel = loadModel_new()
+    svmModel = GlobalDAO.loadModel(receptorPdbCode)
     //Loading oldSig2ID Mapping
     println("\n  #### Initializing Sig2Id ####")
     oldSig2ID = SGUtils_Serial.loadSig2IdMap(resourcesHome + "sig2Id")
@@ -58,22 +56,8 @@ object Global extends GlobalSettings {
     Logger.info("******** BYE BYE FROM CPVS ********")
   }
 
-  def loadModel_new(): InductiveClassifier[MLlibSVM, LabeledPoint] = {
-    DB.withConnection { implicit c =>
-      val result = SQL(
-        """
-        | SELECT r_model
-        | FROM MODELS
-      """.stripMargin)
-        .as(SqlParser.byteArray("r_model").single)
-      Logger.info(s"result ${result.getClass} => $result")
-      deserialize[InductiveClassifier[MLlibSVM, LabeledPoint]](result)
-    }
-  }
+ 
 
-  def deserialize[T](byteArray: Array[Byte]): T = {
-    val ois = new ObjectInputStream(new ByteArrayInputStream(byteArray))
-    ois.readObject().asInstanceOf[T]
-  }
+ 
 
 }
