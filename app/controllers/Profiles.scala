@@ -14,7 +14,7 @@ import play.api.mvc.Controller
 import scala.io.Source
 
 object Profiles extends Controller {
-
+ 
   def predictionByLigandId(smiles: String) = Action {
     val SmilesArray = smiles.split("\n").map(_.trim).filter(_ != "")
     SmilesArray.foreach(println(_))
