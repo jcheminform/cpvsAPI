@@ -10,6 +10,7 @@ import play.api.Application
 import play.api.GlobalSettings
 import play.api.Logger
 import play.api.Play.current
+import play.api.Play
 import play.api.db.DB
 import se.uu.farmbio.vs.{ MLlibSVM, SGUtils_Serial }
 import se.uu.it.cp.InductiveClassifier

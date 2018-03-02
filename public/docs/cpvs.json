@@ -11,7 +11,7 @@
   ],
   "basePath": "/",
   "paths": {
-    "/predictions/{smiles}": {
+    "/predictions/": {
       "get": {
         "tags": [
           "Profile"
@@ -25,10 +25,10 @@
         "parameters": [
           {
             "name": "smiles",
-            "in": "path",
+            "in": "query",
             "type": "string",
             "required": true,
-            "description": "Smiles that need to be considered for profiling. Multiple Ligands must be seperated by \"££££\"."
+            "description": "Smiles that need to be considered for profiling."
           }
         ],
         "responses": {
@@ -107,17 +107,17 @@
         "smiles"
       ],
       "properties": {
-        "l_prediction": {
-          "type": "string",
-          "example": "BAD"
-        },
-        "r_name": {
-          "type": "string",
-          "example": "hiv1_protease"
-        },
         "r_pdbCode": {
           "type": "string",
           "example": "1AJV"
+        },
+        "l_id": {
+          "type": "string",
+          "example": "CCC1=CC=CC(C)=C1NC(=O)CSC1=NC2=C(C)C=CC(C)=C2C=C1C#N"
+        },
+        "l_prediction": {
+          "type": "string",
+          "example": "BAD"
         }
       }
     }

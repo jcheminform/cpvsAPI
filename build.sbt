@@ -20,8 +20,11 @@ libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "5.1.18",
   "org.mariadb.jdbc" % "mariadb-java-client" % "1.7.0",
   "org.jsoup" % "jsoup" % "1.11.2",
-  "se.uu.farmbio" % "vs" %"0.0.1-SNAPSHOT"
+  "se.uu.farmbio" % "vs" %"0.0.1-SNAPSHOT",
+  "org.specs2" %% "specs2" % "2.3.3"	
 )
+
+libraryDependencies += filters
 
 scalacOptions += "-feature"
 
