@@ -49,8 +49,8 @@ object Prediction {
     //Actual prediction
     val predictions: Array[(String, String)] = modelPredictions.map {
       case (smiles, predSet) =>
-        val lPrediction = if (predSet == Set(0.0)) "Low-Score"
-        else if (predSet == Set(1.0)) "High-Score"
+        val lPrediction = if (predSet == Set(0.0)) "High-Score"
+        else if (predSet == Set(1.0)) "Low-Score"
         else "UNKNOWN"
         (smiles, lPrediction)
     }
