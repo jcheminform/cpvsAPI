@@ -1,4 +1,4 @@
-{
+ {
   "swagger": "2.0",
   "info": {
     "description": "This is API documentation for Ligand Docking Profile as a Service (DPAAS) based on [Conformal Prediction based Virtual Screening](https://github.com/laeeq80/spark-cpvs-vina). The API is responsible for two web services i.e. providing prediction profiles for compounds and real-time docking for small number of molecules. \n\nA profile contains ligand id, its prediction and docking score against multiple receptors.",
@@ -38,6 +38,42 @@
               "type": "array",
               "items": {
                 "$ref": "#/definitions/Predictions"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Smiles at line line#"
+          }
+        }
+      }
+    },
+    "/pvalues/": {
+      "get": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Get ligand pvalues by smiles",
+        "description": "Takes in one or more smiles and returns its pvalue predictions, receptor(s) name and receptor(s) PDB code. ",
+        "operationId": "pvaluesBySmiles",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "smiles",
+            "in": "query",
+            "type": "string",
+            "required": true,
+            "description": "Smiles that need to be considered for profiling."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/pvalues"
               }
             }
           },
@@ -109,7 +145,7 @@
       "properties": {
         "r_pdbCode": {
           "type": "string",
-          "example": "1AJV"
+          "example": "1RT2"
         },
         "l_id": {
           "type": "string",
@@ -118,6 +154,30 @@
         "l_prediction": {
           "type": "string",
           "example": "High-Score"
+        }
+      }
+    },
+    "pvalues": {
+      "type": "object",
+      "required": [
+        "smiles"
+      ],
+      "properties": {
+        "r_pdbCode": {
+          "type": "string",
+          "example": "3ERD"
+        },
+        "l_id": {
+          "type": "string",
+          "example": "CCC1=CC=CC(C)=C1NC(=O)CSC1=NC2=C(C)C=CC(C)=C2C=C1C#N"
+        },
+        "pv_0": {
+          "type": "string",
+          "example": 0.2385
+        },
+        "pv_1": {
+          "type": "string",
+          "example": 0.6720
         }
       }
     }
