@@ -24,7 +24,7 @@ object Prediction {
     val smilesAndSdf: Array[(String, String)] = smilesArray.map { smiles =>
       (
         smiles,
-        ConformerPipeline.pipeString(smiles, List(obabelPath, "-ismi", "-osdf", "--gen3d")))
+        ConformerPipeline.pipeString(smiles, List(obabelPath, "-h", "-ismi", "-osdf", "--gen3d")))
     }
 
     //Getting Seq of IAtomContainer

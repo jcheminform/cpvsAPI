@@ -117,7 +117,7 @@
         },
         "l_prediction": {
           "type": "string",
-          "example": "BAD"
+          "example": "High-Score"
         }
       }
     }

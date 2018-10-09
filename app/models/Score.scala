@@ -69,7 +69,7 @@ object Score {
         //Convert sdf ligand to pdbqt format using obabel
         val pdbqtLigand: String = "MODEL\n" + ConformerPipeline.pipeString(
           sdfLigand,
-          List(obabelPath, "-i", "sdf", "-o", "pdbqt")).trim() + "\nENDMDL"
+          List(obabelPath, "-h", "-i", "sdf", "-o", "pdbqt")).trim() + "\nENDMDL"
 
         //Docking pdbqtLigand against receptor using VINA
         val dockedpdbqt: String = ConformerPipeline.pipeString(
