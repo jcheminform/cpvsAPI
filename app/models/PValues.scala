@@ -44,27 +44,15 @@ object PValues {
     //Generate Signature(in vector form) of New Molecule(s)
     val smilesAndNewSigns: Array[(String, Vector)] = SGUtils_Serial.atoms2LP_carryData(smilesAndIAtomMol, oldSig2ID, 1, 3)
 
-    //Predict New molecule(s) , svmModel comes from Global.scala loaded once on project startup
-    //val modelPredictions = smilesAndNewSigns.map { case (smiles, features) => (smiles, svmModel.predict(features.toArray, 0.2)) }
+    //Predict New molecule(s), svmModel comes from Global.scala loaded once on project startup
     val modelP_Values = smilesAndNewSigns.map { case (smiles, features) => (smiles, svmModel.mondrianPv(features.toArray)) }
-/*
-    //Actual prediction
-    val predictions: Array[(String, String)] = modelPredictions.map {
-      case (smiles, predSet) =>
-        val lPrediction = if (predSet == Set(0.0)) "High-Score"
-        else if (predSet == Set(1.0)) "Low-Score"
-        else "UNKNOWN"
-        (smiles, lPrediction)
-    }
-   
-    */
     
     //Actual pValues
     val pValues = modelP_Values.map{
       case (smiles, pvalues) => 
         
-        val pv_0 = BigDecimal(pvalues(0)).setScale(4,BigDecimal.RoundingMode.HALF_UP).toDouble.toString()
-        val pv_1 = BigDecimal(pvalues(1)).setScale(4,BigDecimal.RoundingMode.HALF_UP).toDouble.toString()
+        val pv_0 = BigDecimal(pvalues(0)).setScale(3,BigDecimal.RoundingMode.HALF_UP).toDouble.toString()
+        val pv_1 = BigDecimal(pvalues(1)).setScale(3,BigDecimal.RoundingMode.HALF_UP).toDouble.toString()
       
       (smiles,pv_0, pv_1)
     }     
