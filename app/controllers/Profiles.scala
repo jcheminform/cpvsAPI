@@ -6,6 +6,8 @@ import org.openscience.cdk.smiles.SmilesParser
 
 import models.Prediction
 import models.Prediction.PredictionWrites
+import models.PValues
+import models.PValues.PValuesWrites
 import models.Score
 import models.Score.ScoreWrites
 import play.api.libs.json.Json
@@ -32,6 +34,31 @@ object Profiles extends Controller {
 
       val profilePredictions = Prediction.predictProfile(SmilesArray)
       Ok(Json.obj("predictions" -> profilePredictions))
+    } catch {
+      case exec: InvalidSmilesException =>
+        println("\n ###########  An invalid smile with following message  ########## " + "\n" + exec.getStackTraceString)
+        BadRequest("Invalid Smiles at line " + counter)
+    }
+
+  }
+  
+  def pvaluesByLigandId(smiles: String) = Action {
+    val SmilesArray = smiles.split("\n").map(_.trim).filter(_ != "")
+    SmilesArray.foreach(println(_))
+    var counter = 1
+    try {
+
+      val smilesParser = new SmilesParser(DefaultChemObjectBuilder.getInstance())
+
+      //For getting exception if smiles is invalid
+      //Although we can use map, this is fastest way to map array
+      while (counter <= SmilesArray.length) {
+        smilesParser.parseSmiles(SmilesArray(counter - 1))
+        counter += 1
+      }
+
+      val profilePredictions = PValues.predictProfile(SmilesArray)
+      Ok(Json.obj("pValues" -> profilePredictions))
     } catch {
       case exec: InvalidSmilesException =>
         println("\n ###########  An invalid smile with following message  ########## " + "\n" + exec.getStackTraceString)

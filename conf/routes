@@ -3,7 +3,8 @@
 # ~~~~
 
 # API Endpoints
-GET    /predictions/											  controllers.Profiles.predictionByLigandId(smiles)	
+GET    /predictions/											  	  controllers.Profiles.predictionByLigandId(smiles)
+GET	   /pvalues/													  controllers.Profiles.pvaluesByLigandId(smiles)
 POST   /dockings/:smiles											  controllers.Profiles.dockingByLigandId(smiles)	
 		
 #GET    /ligands/:lId                                             controllers.Profiles.profileByLigandId(lId)
