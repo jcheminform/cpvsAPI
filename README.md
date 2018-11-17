@@ -17,6 +17,6 @@ RECEPTOR_PDBCODE  Pdb Code of the Receptor
 
 RESOURCES_HOME    Direct to resources file in cpvsapi
 
-One can use resources.sh in cpvsapi to run it as
+One can use resources.sh in cpvsapi and run it as
 
 source resources.sh receptor_name
