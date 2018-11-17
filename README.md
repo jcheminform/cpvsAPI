@@ -7,9 +7,9 @@ This is Rest API for conformal prediction based virtual screening. Play framewor
 # ENV VAR
 
 MARIADB_IP	This needs to be set to the machine where mariadb is running
-
 We are using mariadb default port i.e. 3306
 
-RECEPTOR_NAME			Receptor Name
-
-RECEPTOR_PDBCODE		Receptor Pdb Code
+VINA_CONF         Configuration file used for AutoDock Vina
+RECEPTOR_NAME     Name of the Receptor
+RECEPTOR_PDBCODE  Pdb Code of the Receptor
+RESOURCES_HOME    Direct to resources file in cpvsapi
