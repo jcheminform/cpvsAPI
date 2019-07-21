@@ -10,6 +10,10 @@ MARIADB_IP	This needs to be set to the machine where mariadb is running
 We are using mariadb default port i.e. 3306
 
 <pre>
+MARIADB_IP     		    //IP of machine where mariadb is running. We are using mariadb default port i.e. 3306
+
+MARIADB_PASSWORD	    //Mariadb root password	
+
 VINA_CONF                   //Configuration file used for AutoDock Vina
 
 RECEPTOR_NAME               //Name of the Receptor

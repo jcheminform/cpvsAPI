@@ -56,8 +56,8 @@ object Score {
         }
 
         //Create ReceptorPath
-        val rNameWithExtension = receptorName + ".pdbqt"
-        val receptorPath = resourcesHome + rNameWithExtension
+        val rPDBWithExtension = receptorPdbCode + ".pdbqt"
+        val receptorPath = resourcesHome + rPDBWithExtension
         Logger.info("JOB_INFO: The receptor file complete path is " + receptorPath)
 
         //Convert SMILES to SDF using obabel
