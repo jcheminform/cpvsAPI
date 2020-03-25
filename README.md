@@ -34,10 +34,10 @@ If you want to create distribution to be use with https://github.com/laeeq80/cpv
 
 # Adding a new receptor Docker container to the service
 
-The Docker image for a new receptor may be deployed using https://github.com/pharmbio/dpaas. Pick any receptor yaml file as template from the link provided and make a new yaml file for the new receptor accordingly.  
+The Docker image for a new receptor may be deployed using https://github.com/pharmbio/dpaas. Pick any receptor yaml file as template from the link provided and make a new yaml file for the new receptor Docker image accordingly.  
 
 Then if you want to view and use the newly deployed Docker container in the Web service UI, add the PDB ID of the new receptor to the cpvs ui https://github.com/laeeq80/cpvs-ui/blob/master/index.html#L173
 
 Then create new Docker image for the cpvs ui https://github.com/laeeq80/dpaasDockerfiles/tree/master/cpvsUIDocker
 
-Deploy the UI as done in https://github.com/pharmbio/dpaas
+Deploy the new Docker image for UI as done in https://github.com/pharmbio/dpaas
