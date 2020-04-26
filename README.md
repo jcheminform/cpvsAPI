@@ -96,6 +96,27 @@ You must use the correct MARIADB_IP you found in the section 1.5, otherwise the 
 
 So what we have done here? We executed new container test-cpvs and using *--link</pre>*  we linked it to the test-mariadb docker container which was already running. *-p 9000:9000</pre>* is used to publish test-cpvs port to localhost.
 
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.12 Trying out the cpvs rest api for one receptor i.e. 1QCF
+
+Open any web browser and access the 9000 port of the running test-cpvs Docker container we published to local machine. Try the following in any web browser.
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://localhost:9000</pre>
+
+If everything works, you should see a swagger rest ui for cpvs. There are three end points of the CPVS API that can be tested i.e. predictions, pvalues and docking. Click anyone by **try it out** by giving compound in SMILES format. A sample SMILE is given below:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CC(C)c1ccc(Nc2nccc(n2)c3cnn4ncccc34)cc1</pre>
+
+## 2. Preparing Docker images
+
+#### Note: Java 8, Maven and sbt 1.1.6 must be installed on local for section 2 and JAVA_HOME must be set
+
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1 Installing Project Dependencies
+
+Clone spark-cheminformatics utilities for tools like signature generation
+
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone https://github.com/mcapuccini/spark-cheminformatics.git</pre>
+
 # Adding a new receptor Docker container to the service
 
 The Docker image for a new receptor may be deployed using https://github.com/pharmbio/dpaas. Pick any receptor yaml file as template from the link provided and make a new yaml file for the new receptor Docker image accordingly.  
