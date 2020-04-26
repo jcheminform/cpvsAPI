@@ -70,7 +70,7 @@ You would need to use sudo in front of all the docker commands if post docker in
 Now we know the IP Address where the database is running, so we would be able to connect it. In our case, it was 172.17.0.2. 
 
 #### Note: 
-Make sure to write it down, you will need it in step 1.11.
+Make sure to write the IP Address down, you will need it in step 1.11.
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.6	Logging into mariadb container and start a bash environment
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker exec -it test-mariadb bash</pre>
@@ -114,8 +114,97 @@ If everything works, you should see a swagger rest ui for cpvs. There are three 
 
 Clone spark-cheminformatics utilities for tools like signature generation
 
-
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone https://github.com/mcapuccini/spark-cheminformatics.git</pre>
+
+Enter the newly cloned directory. There are two projects parsers and sg. Enter both of them and run the following maven command to install each one of them as local dependencies.
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mvn clean install -DskipTests</pre>
+
+Clone spark-cpvs-vina project
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone https://github.com/laeeq80/spark-cpvs-vina.git</pre>
+	
+Enter the project “vs” inside spark-cpvs-vina and run the command
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mvn clean install -DskipTests</pre>
+  
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2 Building Mariabd image and copying the database that contains model
+We need a **Docker container for MariaDB** that stores the models created using cpvs project.
+
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.1 Clone the ligandprofiledb repo
+
+Use git clone to clone the repo https://github.com/laeeq80/ligandProfiledb to create MariaDB Docker image including the database with 1QCF model.
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone https://github.com/laeeq80/ligandProfiledb.git</pre>
+
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.2 	Build the ligandprofiledb image
+Use the following command to create the Docker image at CLI from inside the cloned directory. The Dockerfile also includes the database copying step.
+
+Enter the ligandprofiledb directory and run the following command
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker build . -t laeeq/ligandprofiledb:0.0.3</pre>
+
+**!! Step 6/8** in the Dockerfile can take upto 5 minutes. **Grab a coffee.**
+
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.3	Building cpvsapi Docker image for one of the receptor i.e. with PDB ID “1QCF”. The pdbqt for the 1QCF is already available in the cpvsapi repo.
+
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.3.1	Clone the cpvsapi repo
+
+Get out of the ligandprofiledb directory and run the following command.
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone https://github.com/laeeq80/cpvsAPI.git</pre>
+
+The pdbqt for the 1QCF and other resources are already available in the this repo resources folder.	
+
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.3.2	Creating package
+
+Enter the cpvsAPI and run the following command
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sbt dist</pre>
+
+The above command will create cpvsapi-1.0.zip file in the **cpvsAPI/target/universal/** directory that is needed while building cpvsapi Docker image in step 2.3.4. In addition, openbabel-2.4.1.tar.gz will also be required that the application uses to convert files into different formats. Openbabel can be downloaded online using
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wget  https://sourceforge.net/projects/openbabel/files/openbabel/2.4.1/openbabel-2.4.1.tar.gz</pre>
+
+If wget is not available on your system, you can use a web browser to get it.
+
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.3.3	Clone cpvsDocker Dockerfile
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone https://github.com/laeeq80/cpvsDocker.git</pre>
+	
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.3.4	Build Docker image for cpvsapi
+	
+Copy cpvsapi-1.0.zip and openbabel-2.4.1.tar.gz inside the cpvsDocker directory and run the following command from cpvsDocker directory.
+	
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker build . -t laeeq/cpvsapi:1QCF-0.0.1</pre>
+
+This will take around **15 to 20 minutes. Grab another coffee. [:D]**
+
+Goto Step 1.2 to test the newly created Docker images.
+
+## 3.		Some helpful commands
+		
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.1 	List all images
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker image ls</pre>
+
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2	Deleting a docker image
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker rmi imageID</pre>
+
+### 3.3	List running docker containers
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker ps</pre>
+
+### 3.4	List already stopped but unremoved containers
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker ps -a</pre>
+
+### 3.5	Stopping and removing a running docker container
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker stop containerName</pre>
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker rm containerName</pre>
+
+E.g. 
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker stop test-cpvs</pre>
+
+
 
 # Adding a new receptor Docker container to the service
 
