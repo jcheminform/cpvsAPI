@@ -6,13 +6,13 @@ This is Rest API for conformal prediction based virtual screening. Play framewor
 
 # ENV VAR
 
-MARIADB_IP	This needs to be set to the machine where mariadb is running
+MARIADB_IP	This needs to be set to the machine where MariaDB is running
 We are using mariadb default port i.e. 3306
 
 <pre>
-MARIADB_IP     		    //IP of machine where mariadb is running. We are using mariadb default port i.e. 3306
+MARIADB_IP     		    //IP of machine where MariaDB is running. We are using MariaDB default port i.e. 3306
 
-MARIADB_PASSWORD	    //Mariadb root password	
+MARIADB_PASSWORD	    //MariaDB root password	
 
 VINA_CONF                   //Configuration file used for AutoDock Vina
 
@@ -25,12 +25,6 @@ RESOURCES_HOME              //Direct to resources file in cpvsapi
 One can also use resources.sh to set up environment variables, which is convenient, using the following command. 
 
 *source resources.sh receptor_name*
-
-# Creating distribution
-
-If you want to create distribution to be use with https://github.com/laeeq80/cpvsDocker, please run following command in the cpvsAPI directory
-
-*sbt dist*
 
 # Step by step process for running cpvsapi on a local system
 
@@ -72,10 +66,10 @@ Now we know the IP Address where the database is running, so we would be able to
 #### Note: 
 Make sure to write the IP Address down, you will need it in step 1.11.
 
-### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.6	Logging into mariadb container and start a bash environment
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.6	Logging into MariaDB container and start a bash environment
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker exec -it test-mariadb bash</pre>
 
-### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.7	Logging into mariadb in the Docker container by using the following command
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.7	Logging into MariaDB in the Docker container by using the following command
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mysql -uroot -pmariadb_root</pre>
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.8	Allowing other Docker containers to access MariaDB
@@ -90,7 +84,7 @@ Make sure to write the IP Address down, you will need it in step 1.11.
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.11 	Running the CPVSAPI Docker container for 1QCF receptor and linking to MariaDB container
 
 #### Note:
-You must use the correct MARIADB_IP you found in the section 1.5, otherwise the cpvsapi docker container won’t be able to connect the mariadb database.
+You must use the correct MARIADB_IP you found in the section 1.5, otherwise the cpvsapi docker container won’t be able to connect the MariaDB database.
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker run --detach --name test-cpvs -e MARIADB_IP='172.17.0.2' -e MARIADB_PASSWORD='mariadb_root' -e RECEPTOR_NAME='HCK Tyrosine kinase' -e RECEPTOR_PDBCODE='1QCF' --link test-mariadb:mariadb -p 9000:9000 laeeq/cpvsapi:1QCF-0.0.1</pre>
 
@@ -128,7 +122,7 @@ Enter the project “vs” inside spark-cpvs-vina and run the command
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mvn clean install -DskipTests</pre>
   
-### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2 Building Mariabd image and copying the database that contains model
+### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2 Building MariaDB image and copying the database that contains model
 We need a **Docker container for MariaDB** that stores the models created using cpvs project.
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.1 Clone the ligandprofiledb repo
