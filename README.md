@@ -35,7 +35,7 @@ For this material, we assume that Docker and Git are already installed on your l
 
 <pre>docker run hello-world</pre>
 
-You would need to use sudo in front of all the docker commands if post docker installation was not followed. Details are available here https://docs.docker.com/install/linux/linux-postinstall/
+You would need to use **sudo** in front of all the docker commands if post docker installation was not followed. Details are available here https://docs.docker.com/install/linux/linux-postinstall/
 
 ## 1. Executing the Docker images
 
@@ -63,8 +63,7 @@ You would need to use sudo in front of all the docker commands if post docker in
 
 Now we know the IP Address where the database is running, so we would be able to connect it. In our case, it was 172.17.0.2. 
 
-#### Note: 
-Make sure to write the IP Address down, you will need it in step 1.11.
+#### Note: Make sure to write the IP Address down, you will need it in step 1.11.
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.6	Logging into MariaDB container and start a bash environment
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker exec -it test-mariadb bash</pre>
@@ -88,7 +87,7 @@ You must use the correct MARIADB_IP you found in the section 1.5, otherwise the 
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker run --detach --name test-cpvs -e MARIADB_IP='172.17.0.2' -e MARIADB_PASSWORD='mariadb_root' -e RECEPTOR_NAME='HCK Tyrosine kinase' -e RECEPTOR_PDBCODE='1QCF' --link test-mariadb:mariadb -p 9000:9000 laeeq/cpvsapi:1QCF-0.0.1</pre>
 
-So what we have done here? We executed new container test-cpvs and using *--link</pre>*  we linked it to the test-mariadb docker container which was already running. *-p 9000:9000</pre>* is used to publish test-cpvs port to localhost.
+So what we have done here? We executed new container test-cpvs and using `--link`</pre>  we linked it to the test-mariadb docker container which was already running. `-p 9000:9000</pre>` is used to publish test-cpvs port to localhost.
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.12 Trying out the cpvs rest api for one receptor i.e. 1QCF
 
