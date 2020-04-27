@@ -196,7 +196,7 @@ E.g.
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker stop test-cpvs</pre>
 
-
+The step-by-step guide ends here.
 
 # Adding a new receptor Docker container to the service
 
