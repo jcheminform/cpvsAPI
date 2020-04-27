@@ -26,7 +26,7 @@ One can also use resources.sh to set up environment variables, which is convenie
 
 *source resources.sh receptor_name*
 
-# Step by step process for running cpvsapi on a local system
+# Step by step process for running CPVSAPI on a local system
 
 #### Note: 
 For this material, we assume that Docker and Git are already installed on your local system.  If you want to prepare the Docker images yourself, then first perform section 2 and then start from section 1.2. Section 3 contains some extra docker commands which can be useful if you want to test both ready made and custom build docker images.
