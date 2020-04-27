@@ -82,16 +82,15 @@ Now we know the IP Address where the database is running, so we would be able to
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.11 	Running the CPVSAPI Docker container for 1QCF receptor and linking to MariaDB container
 
-#### Note:
-You must use the correct MARIADB_IP you found in the section 1.5, otherwise the cpvsapi docker container won’t be able to connect the MariaDB database.
+#### Note: You must use the correct MARIADB_IP you found in the section 1.5, otherwise the cpvsapi docker container won’t be able to connect the MariaDB database.
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;docker run --detach --name test-cpvs -e MARIADB_IP='172.17.0.2' -e MARIADB_PASSWORD='mariadb_root' -e RECEPTOR_NAME='HCK Tyrosine kinase' -e RECEPTOR_PDBCODE='1QCF' --link test-mariadb:mariadb -p 9000:9000 laeeq/cpvsapi:1QCF-0.0.1</pre>
 
-So what we have done here? We executed new container test-cpvs and using `--link`</pre>  we linked it to the test-mariadb docker container which was already running. `-p 9000:9000</pre>` is used to publish test-cpvs port to localhost.
+So what have we done here? We executed a new container test-cpvs and using `--link` we linked it to the test-mariadb docker container which was already running. `-p 9000:9000` is used to publish test-cpvs port to localhost.
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.12 Trying out the cpvs rest api for one receptor i.e. 1QCF
 
-Open any web browser and access the 9000 port of the running test-cpvs Docker container we published to local machine. Try the following in any web browser.
+Open any web browser and access the 9000 port of the running test-cpvs Docker container we published to the local machine. Try the following in any web browser.
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://localhost:9000</pre>
 
@@ -109,7 +108,7 @@ Clone spark-cheminformatics utilities for tools like signature generation
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone https://github.com/mcapuccini/spark-cheminformatics.git</pre>
 
-Enter the newly cloned directory. There are two projects parsers and sg. Enter both of them and run the following maven command to install each one of them as local dependencies.
+Enter the newly cloned directory. There are two projects **parsers and sg**. Enter **both** of them and run the following maven command to install each one of them as local dependencies.
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mvn clean install -DskipTests</pre>
 
@@ -117,7 +116,7 @@ Clone spark-cpvs-vina project
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone https://github.com/laeeq80/spark-cpvs-vina.git</pre>
 	
-Enter the project “vs” inside spark-cpvs-vina and run the command
+Enter the project **vs** inside spark-cpvs-vina and run the command
 
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mvn clean install -DskipTests</pre>
   
