@@ -175,28 +175,28 @@ E.g.
 
 The step-by-step guide ends here.
 
-# Extending the Service by adding new receptor Docker containers to the service
+# Extending the Service by adding the new receptor Docker containers to the service
 
 If you want to create a docker container for a new receptor, please consider the following steps.
 
 We deployed the service using the deployment script available at https://github.com/pharmbio/dpaas. The script can be utilized to deploy image for a new receptor. Pick any receptor yaml file as template from the link provided and make a new yaml file for the new receptor Docker image accordingly.  
 
-1. Create new Docker image for the cpvs ui https://github.com/laeeq80/dpaasDockerfiles/tree/master/cpvsUIDocker
+Then if you want to view and use the newly deployed Docker container in the Web service UI, add the PDB ID of the new receptor to the cpvs ui https://github.com/laeeq80/cpvs-ui/blob/master/index.html#L173
 
-2. Deploy the new Docker image for UI as done in https://github.com/pharmbio/dpaas
+Create new Docker image for the cpvs ui https://github.com/laeeq80/dpaasDockerfiles/tree/master/cpvsUIDocker
 
-3. Then if you want to view and use the newly deployed Docker container in the Web service UI, add the PDB ID of the new receptor to the cpvs ui https://github.com/laeeq80/cpvs-ui/blob/master/index.html#L173
+Deploy the new Docker image for UI as done in https://github.com/pharmbio/dpaas
 
+# Environment Variables
 
-# ENV VAR
-
-MARIADB_IP	This needs to be set to the machine where MariaDB is running
-We are using mariadb default port i.e. 3306
+If you want to further improve CPVSAPI and make any changes, you need to know the CPVSAPI environment variables.   
 
 <pre>
 MARIADB_IP     		    //IP of machine where MariaDB is running. We are using MariaDB default port i.e. 3306
 
 MARIADB_PASSWORD	    //MariaDB root password	
+
+RESOURCES_HOME              //Direct to resources file in cpvsapi
 
 VINA_CONF                   //Configuration file used for AutoDock Vina
 
@@ -204,7 +204,6 @@ RECEPTOR_NAME               //Name of the Receptor
 
 RECEPTOR_PDBCODE            //Pdb Code of the Receptor
 
-RESOURCES_HOME              //Direct to resources file in cpvsapi
 </pre>
 One can also use resources.sh to set up environment variables, which is convenient, using the following command. 
 
