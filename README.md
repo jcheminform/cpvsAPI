@@ -1,30 +1,7 @@
 # CPVSAPI
 
 
-This is Rest API for conformal prediction based virtual screening. Play framework is being used for developing this API.
-
-
-# ENV VAR
-
-MARIADB_IP	This needs to be set to the machine where MariaDB is running
-We are using mariadb default port i.e. 3306
-
-<pre>
-MARIADB_IP     		    //IP of machine where MariaDB is running. We are using MariaDB default port i.e. 3306
-
-MARIADB_PASSWORD	    //MariaDB root password	
-
-VINA_CONF                   //Configuration file used for AutoDock Vina
-
-RECEPTOR_NAME               //Name of the Receptor
-
-RECEPTOR_PDBCODE            //Pdb Code of the Receptor
-
-RESOURCES_HOME              //Direct to resources file in cpvsapi
-</pre>
-One can also use resources.sh to set up environment variables, which is convenient, using the following command. 
-
-*source resources.sh receptor_name*
+This is Rest API for conformal prediction based virtual screening. Play framework is being used for developing this API. The service is available at https://ptpaas.service.pharmb.io/
 
 # Step by step process for running CPVSAPI on a local system
 
@@ -207,3 +184,25 @@ Then if you want to view and use the newly deployed Docker container in the Web 
 Then create new Docker image for the cpvs ui https://github.com/laeeq80/dpaasDockerfiles/tree/master/cpvsUIDocker
 
 Deploy the new Docker image for UI as done in https://github.com/pharmbio/dpaas
+
+# ENV VAR
+
+MARIADB_IP	This needs to be set to the machine where MariaDB is running
+We are using mariadb default port i.e. 3306
+
+<pre>
+MARIADB_IP     		    //IP of machine where MariaDB is running. We are using MariaDB default port i.e. 3306
+
+MARIADB_PASSWORD	    //MariaDB root password	
+
+VINA_CONF                   //Configuration file used for AutoDock Vina
+
+RECEPTOR_NAME               //Name of the Receptor
+
+RECEPTOR_PDBCODE            //Pdb Code of the Receptor
+
+RESOURCES_HOME              //Direct to resources file in cpvsapi
+</pre>
+One can also use resources.sh to set up environment variables, which is convenient, using the following command. 
+
+*source resources.sh receptor_name*
