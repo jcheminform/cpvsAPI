@@ -194,7 +194,9 @@ If you want to further improve CPVSAPI and make any changes, you need to know th
 <pre>
 MARIADB_IP     		    //IP of machine where MariaDB is running. We are using MariaDB default port i.e. 3306
 
-MARIADB_PASSWORD	    //MariaDB root password	
+MARIADB_PASSWORD	    //MariaDB root password
+
+OBABEL_HOME		    //OBabel Location on local computer	
 
 RESOURCES_HOME              //Direct to resources file in cpvsapi
 
@@ -205,6 +207,6 @@ RECEPTOR_NAME               //Name of the Receptor
 RECEPTOR_PDBCODE            //Pdb Code of the Receptor
 
 </pre>
-One can also use resources.sh to set up environment variables, which is convenient, using the following command. 
+One can also use resources.sh to set up the last four environment variables, which is convenient, using the following command. 
 
-*source resources.sh receptor_name*
+*source resources.sh receptor_name receptor_pdbCode*
