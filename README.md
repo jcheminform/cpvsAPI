@@ -175,15 +175,18 @@ E.g.
 
 The step-by-step guide ends here.
 
-# Adding a new receptor Docker container to the service
+# Extending the Service by adding new receptor Docker containers to the service
 
-The Docker image for a new receptor may be deployed using https://github.com/pharmbio/dpaas. Pick any receptor yaml file as template from the link provided and make a new yaml file for the new receptor Docker image accordingly.  
+If you want to create a docker container for a new receptor, please consider the following steps.
 
-Then if you want to view and use the newly deployed Docker container in the Web service UI, add the PDB ID of the new receptor to the cpvs ui https://github.com/laeeq80/cpvs-ui/blob/master/index.html#L173
+We deployed the service using the deployment script available at https://github.com/pharmbio/dpaas. The script can be utilized to deploy image for a new receptor. Pick any receptor yaml file as template from the link provided and make a new yaml file for the new receptor Docker image accordingly.  
 
-Then create new Docker image for the cpvs ui https://github.com/laeeq80/dpaasDockerfiles/tree/master/cpvsUIDocker
+1. Create new Docker image for the cpvs ui https://github.com/laeeq80/dpaasDockerfiles/tree/master/cpvsUIDocker
 
-Deploy the new Docker image for UI as done in https://github.com/pharmbio/dpaas
+2. Deploy the new Docker image for UI as done in https://github.com/pharmbio/dpaas
+
+3. Then if you want to view and use the newly deployed Docker container in the Web service UI, add the PDB ID of the new receptor to the cpvs ui https://github.com/laeeq80/cpvs-ui/blob/master/index.html#L173
+
 
 # ENV VAR
 
